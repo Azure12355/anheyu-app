@@ -54,6 +54,7 @@ import (
 	post_tag_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/post_tag"
 	proxy_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/proxy"
 	public_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/public"
+	portfolio_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/portfolio"
 	search_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/search"
 	setting_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/setting"
 	sitemap_handler "github.com/anzhiyu-c/anheyu-app/pkg/handler/sitemap"
@@ -90,6 +91,7 @@ import (
 	parser_service "github.com/anzhiyu-c/anheyu-app/pkg/service/parser"
 	post_category_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_category"
 	post_tag_service "github.com/anzhiyu-c/anheyu-app/pkg/service/post_tag"
+	portfolio_service "github.com/anzhiyu-c/anheyu-app/pkg/service/portfolio"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/process"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/search"
 	"github.com/anzhiyu-c/anheyu-app/pkg/service/setting"
@@ -237,6 +239,7 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	pageRepo := ent_impl.NewEntPageRepository(entClient)
 	notificationTypeRepo := ent_impl.NewEntNotificationTypeRepository(entClient)
 	userNotificationConfigRepo := ent_impl.NewEntUserNotificationConfigRepository(entClient)
+	portfolioRepo := ent_impl.NewPortfolioRepo(entClient)
 
 	// --- Phase 4: 初始化应用引导程序 ---
 	bootstrapper := bootstrap.NewBootstrapper(entClient)
@@ -455,6 +458,11 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	captchaSvc := captcha_service.NewCaptchaService(settingSvc, turnstileSvc, geetestSvc, imageCaptchaSvc)
 	log.Printf("[DEBUG] CaptchaService 初始化完成")
 
+	// 初始化作品展示服务
+	log.Printf("[DEBUG] 正在初始化 PortfolioService...")
+	portfolioSvc := portfolio_service.NewService(portfolioRepo)
+	log.Printf("[DEBUG] PortfolioService 初始化完成")
+
 	// --- Phase 5.5: 初始化 SSR 主题管理器 ---
 	ssrManager := ssr.NewManager("./themes")
 	ssrThemeHandler := ssrtheme_handler.NewHandler(ssrManager, themeSvc)
@@ -538,6 +546,8 @@ func NewApp(content embed.FS) (*App, func(), error) {
 	configImportExportHandler := config_handler.NewConfigImportExportHandler(configImportExportSvc)
 	subscriberHandler := subscriber_handler.NewHandler(subscriberSvc, captchaSvc)
 	captchaHandler := captcha_handler.NewHandler(captchaSvc)
+	portfolioPublicHandler := portfolio_handler.NewPublicHandler(portfolioSvc)
+	portfolioAdminHandler := portfolio_handler.NewAdminHandler(portfolioSvc)
 
 	// --- Phase 7: 初始化路由 ---
 	appRouter := router.NewRouter(
@@ -608,6 +618,9 @@ func NewApp(content embed.FS) (*App, func(), error) {
 
 	router.SetupFrontend(engine, settingSvc, articleSvc, cacheSvc, content, cfg, pageRepo)
 	appRouter.Setup(engine)
+
+	// 注册作品展示路由
+	router.RegisterPortfolioRoutes(engine, portfolioPublicHandler, portfolioAdminHandler)
 
 	// --- 微信分享路由 ---
 	setupWechatShareRoutes(engine, settingSvc)
