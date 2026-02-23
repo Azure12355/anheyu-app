@@ -116,6 +116,11 @@ func (Portfolio) Fields() []ent.Field {
 		field.Text("solution").
 			Comment("解决方案").
 			Optional(),
+
+		// --- 图库图片 ---
+		field.JSON("gallery_images", []string{}).
+			Comment("图库图片URL列表").
+			Optional(),
 	}
 }
 
