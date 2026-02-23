@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // Portfolio holds the schema definition for the Portfolio entity.
@@ -44,10 +45,14 @@ func (Portfolio) Fields() []ent.Field {
 	return []ent.Field{
 		// --- 基础字段 ---
 		field.Uint("id"),
-		field.Time("created_at").Default(time.Now),
+		field.Time("created_at").
+			Default(time.Now).
+			Immutable().
+			Comment("创建时间"),
 		field.Time("updated_at").
 			Default(time.Now).
-			UpdateDefault(time.Now),
+			UpdateDefault(time.Now).
+			Comment("更新时间"),
 
 		// --- 基本信息 ---
 		field.String("title").
@@ -118,5 +123,19 @@ func (Portfolio) Fields() []ent.Field {
 func (Portfolio) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("technologies", PortfolioTechnology.Type),
+	}
+}
+
+// Indexes of the Portfolio.
+func (Portfolio) Indexes() []ent.Index {
+	return []ent.Index{
+		// 常见查询：按项目类型和状态筛选
+		index.Fields("project_type", "status"),
+
+		// 精选查询：按精选状态和状态筛选
+		index.Fields("featured", "status"),
+
+		// 排序查询：按排序权重排序
+		index.Fields("sort_order"),
 	}
 }
