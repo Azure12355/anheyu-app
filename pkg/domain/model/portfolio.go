@@ -21,6 +21,7 @@ type Portfolio struct {
 	CoverURL      string    `json:"cover_url"`      // 封面图 URL
 	ProjectType   string    `json:"project_type"`   // 项目类型：frontend/vibecoding/fullstack/backend/miniprogram/app/uiux/devops/game/3d-model/illustration/other
 	Status        string    `json:"status"`         // 状态：developing/completed/archived
+	Tier          string    `json:"tier"`           // 层级: normal/recommended/featured
 	Technologies  []string  `json:"technologies"`   // 技术栈列表
 	DemoURL       string    `json:"demo_url"`       // 演示地址
 	GithubURL     string    `json:"github_url"`     // GitHub 仓库地址
@@ -47,6 +48,7 @@ type CreatePortfolioRequest struct {
 	CoverURL      string   `json:"cover_url"`                                                                                   // 封面图 URL
 	ProjectType   string   `json:"project_type" binding:"required,oneof=frontend vibecoding fullstack backend miniprogram app uiux devops game 3d-model illustration other"`    // 项目类型
 	Status        string   `json:"status" binding:"omitempty,oneof=developing completed archived"`                              // 状态
+	Tier          string   `json:"tier" binding:"omitempty,oneof=normal recommended featured"`                                  // 层级
 	Technologies  []string `json:"technologies"`                                                                                // 技术栈列表
 	DemoURL       string   `json:"demo_url"`                                                                                    // 演示地址
 	GithubURL     string   `json:"github_url"`                                                                                  // GitHub 仓库地址
@@ -69,6 +71,7 @@ type UpdatePortfolioRequest struct {
 	CoverURL      *string   `json:"cover_url"`
 	ProjectType   *string   `json:"project_type" binding:"omitempty,oneof=frontend vibecoding fullstack backend miniprogram app uiux devops game 3d-model illustration other"`
 	Status        *string   `json:"status" binding:"omitempty,oneof=developing completed archived"`
+	Tier          *string   `json:"tier" binding:"omitempty,oneof=normal recommended featured"`
 	Technologies  *[]string `json:"technologies"`
 	DemoURL       *string   `json:"demo_url"`
 	GithubURL     *string   `json:"github_url"`
@@ -93,6 +96,7 @@ type PortfolioResponse struct {
 	CoverURL      string    `json:"cover_url"`
 	ProjectType   string    `json:"project_type"`
 	Status        string    `json:"status"`
+	Tier          string    `json:"tier"`           // 层级
 	Technologies  []string  `json:"technologies"`
 	DemoURL       string    `json:"demo_url"`
 	GithubURL     string    `json:"github_url"`
@@ -118,6 +122,7 @@ type PortfolioListOptions struct {
 	ProjectType string `form:"project_type,omitempty"`   // 按项目类型过滤
 	Status      string `form:"status,omitempty"`         // 按状态过滤
 	Featured    *bool  `form:"featured,omitempty"`       // 按是否精选过滤
+	Tier        string `form:"tier,omitempty"`           // 按层级过滤: normal/recommended/featured
 }
 
 // PortfolioListResponse 定义了项目作品集列表的 API 响应结构
@@ -151,6 +156,7 @@ type CreatePortfolioParams struct {
 	DemoURL       string
 	GithubURL     string
 	Featured      bool
+	Tier          string // 层级: normal/recommended/featured
 	SortOrder     int
 	Overview      string
 	Role          string
