@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/anzhiyu-c/anheyu-app/internal/pkg/parser"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 )
@@ -48,6 +49,27 @@ func (s *serviceImpl) GetByID(ctx context.Context, publicID string) (*model.Port
 	portfolio, err := s.repo.GetByID(ctx, publicID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get portfolio: %w", err)
+	}
+
+	// 渲染 Markdown 内容为 HTML
+	if portfolio.Overview != "" {
+		overviewHTML, err := parser.MarkdownToHTML(portfolio.Overview)
+		if err == nil {
+			portfolio.OverviewHTML = overviewHTML
+		}
+		// 如果渲染失败，保留原始 markdown 文本在前端处理
+	}
+	if portfolio.Challenge != "" {
+		challengeHTML, err := parser.MarkdownToHTML(portfolio.Challenge)
+		if err == nil {
+			portfolio.ChallengeHTML = challengeHTML
+		}
+	}
+	if portfolio.Solution != "" {
+		solutionHTML, err := parser.MarkdownToHTML(portfolio.Solution)
+		if err == nil {
+			portfolio.SolutionHTML = solutionHTML
+		}
 	}
 
 	return portfolio, nil

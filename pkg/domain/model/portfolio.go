@@ -26,12 +26,15 @@ type Portfolio struct {
 	GithubURL     string    `json:"github_url"`     // GitHub 仓库地址
 	Featured      bool      `json:"featured"`       // 是否精选/推荐
 	SortOrder     int       `json:"sort_order"`     // 排序权重
-	Overview      string    `json:"overview"`       // 项目概览（富文本）
+	Overview      string    `json:"overview"`       // 项目概览（Markdown 格式）
+	OverviewHTML  string    `json:"overview_html,omitempty"`  // 项目概览（HTML 渲染版本）
 	Role          string    `json:"role"`           // 作者在项目中的角色
 	Duration      string    `json:"duration"`       // 项目持续时间
 	Client        string    `json:"client"`         // 客户名称（如有）
-	Challenge     string    `json:"challenge"`      // 项目挑战描述
-	Solution      string    `json:"solution"`       // 解决方案描述
+	Challenge     string    `json:"challenge"`      // 项目挑战描述（Markdown 格式）
+	ChallengeHTML string    `json:"challenge_html,omitempty"` // 项目挑战描述（HTML 渲染版本）
+	Solution      string    `json:"solution"`       // 解决方案描述（Markdown 格式）
+	SolutionHTML  string    `json:"solution_html,omitempty"`  // 解决方案描述（HTML 渲染版本）
 	GalleryImages []string  `json:"gallery_images"` // 项目展示图片列表
 }
 
@@ -96,11 +99,14 @@ type PortfolioResponse struct {
 	Featured      bool      `json:"featured"`
 	SortOrder     int       `json:"sort_order"`
 	Overview      string    `json:"overview"`
+	OverviewHTML  string    `json:"overview_html,omitempty"`   // 概述的 HTML 渲染版本
 	Role          string    `json:"role"`
 	Duration      string    `json:"duration"`
 	Client        string    `json:"client"`
 	Challenge     string    `json:"challenge"`
+	ChallengeHTML string    `json:"challenge_html,omitempty"`  // 挑战的 HTML 渲染版本
 	Solution      string    `json:"solution"`
+	SolutionHTML  string    `json:"solution_html,omitempty"`   // 解决方案的 HTML 渲染版本
 	GalleryImages []string  `json:"gallery_images"`
 }
 
