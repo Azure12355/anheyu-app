@@ -19,7 +19,7 @@ type Portfolio struct {
 	Title         string    `json:"title"`          // 项目标题
 	Description   string    `json:"description"`    // 项目描述
 	CoverURL      string    `json:"cover_url"`      // 封面图 URL
-	ProjectType   string    `json:"project_type"`   // 项目类型：frontend/vibecoding/fullstack/miniprogram/app/other
+	ProjectType   string    `json:"project_type"`   // 项目类型：frontend/vibecoding/fullstack/miniprogram/app/game/other
 	Status        string    `json:"status"`         // 状态：developing/completed/archived
 	Technologies  []string  `json:"technologies"`   // 技术栈列表
 	DemoURL       string    `json:"demo_url"`       // 演示地址
@@ -45,7 +45,7 @@ type CreatePortfolioRequest struct {
 	Title         string   `json:"title" binding:"required"`                                                                     // 项目标题
 	Description   string   `json:"description" binding:"required"`                                                              // 项目描述
 	CoverURL      string   `json:"cover_url"`                                                                                   // 封面图 URL
-	ProjectType   string   `json:"project_type" binding:"required,oneof=frontend vibecoding fullstack miniprogram app other"`    // 项目类型
+	ProjectType   string   `json:"project_type" binding:"required,oneof=frontend vibecoding fullstack miniprogram app game other"`    // 项目类型
 	Status        string   `json:"status" binding:"omitempty,oneof=developing completed archived"`                              // 状态
 	Technologies  []string `json:"technologies"`                                                                                // 技术栈列表
 	DemoURL       string   `json:"demo_url"`                                                                                    // 演示地址
@@ -67,7 +67,7 @@ type UpdatePortfolioRequest struct {
 	Title         *string   `json:"title"`
 	Description   *string   `json:"description"`
 	CoverURL      *string   `json:"cover_url"`
-	ProjectType   *string   `json:"project_type" binding:"omitempty,oneof=frontend vibecoding fullstack miniprogram app other"`
+	ProjectType   *string   `json:"project_type" binding:"omitempty,oneof=frontend vibecoding fullstack miniprogram app game other"`
 	Status        *string   `json:"status" binding:"omitempty,oneof=developing completed archived"`
 	Technologies  *[]string `json:"technologies"`
 	DemoURL       *string   `json:"demo_url"`
