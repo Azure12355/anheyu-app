@@ -28,6 +28,8 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
 	"github.com/anzhiyu-c/anheyu-app/ent/notificationtype"
 	"github.com/anzhiyu-c/anheyu-app/ent/page"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfoliotechnology"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/setting"
@@ -98,7 +100,7 @@ var (
 )
 
 // checkColumn checks if the column exists in the given table.
-func checkColumn(t, c string) error {
+func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			album.Table:                  album.ValidColumn,
@@ -117,6 +119,8 @@ func checkColumn(t, c string) error {
 			metadata.Table:               metadata.ValidColumn,
 			notificationtype.Table:       notificationtype.ValidColumn,
 			page.Table:                   page.ValidColumn,
+			portfolio.Table:              portfolio.ValidColumn,
+			portfoliotechnology.Table:    portfoliotechnology.ValidColumn,
 			postcategory.Table:           postcategory.ValidColumn,
 			posttag.Table:                posttag.ValidColumn,
 			setting.Table:                setting.ValidColumn,
@@ -132,7 +136,7 @@ func checkColumn(t, c string) error {
 			visitorstat.Table:            visitorstat.ValidColumn,
 		})
 	})
-	return columnCheck(t, c)
+	return columnCheck(table, column)
 }
 
 // Asc applies the given fields in ASC order.

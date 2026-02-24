@@ -140,12 +140,18 @@ const DefaultProjectType = ProjectTypeOther
 
 // ProjectType values.
 const (
-	ProjectTypeFrontend    ProjectType = "frontend"
-	ProjectTypeVibecoding  ProjectType = "vibecoding"
-	ProjectTypeFullstack   ProjectType = "fullstack"
-	ProjectTypeMiniprogram ProjectType = "miniprogram"
-	ProjectTypeApp         ProjectType = "app"
-	ProjectTypeOther       ProjectType = "other"
+	ProjectTypeFrontend     ProjectType = "frontend"
+	ProjectTypeVibecoding   ProjectType = "vibecoding"
+	ProjectTypeFullstack    ProjectType = "fullstack"
+	ProjectTypeMiniprogram  ProjectType = "miniprogram"
+	ProjectTypeApp          ProjectType = "app"
+	ProjectTypeUiux         ProjectType = "uiux"
+	ProjectTypeBackend      ProjectType = "backend"
+	ProjectTypeDevops       ProjectType = "devops"
+	ProjectTypeGame         ProjectType = "game"
+	ProjectType3dModel      ProjectType = "3d-model"
+	ProjectTypeIllustration ProjectType = "illustration"
+	ProjectTypeOther        ProjectType = "other"
 )
 
 func (pt ProjectType) String() string {
@@ -155,7 +161,7 @@ func (pt ProjectType) String() string {
 // ProjectTypeValidator is a validator for the "project_type" field enum values. It is called by the builders before save.
 func ProjectTypeValidator(pt ProjectType) error {
 	switch pt {
-	case ProjectTypeFrontend, ProjectTypeVibecoding, ProjectTypeFullstack, ProjectTypeMiniprogram, ProjectTypeApp, ProjectTypeOther:
+	case ProjectTypeFrontend, ProjectTypeVibecoding, ProjectTypeFullstack, ProjectTypeMiniprogram, ProjectTypeApp, ProjectTypeUiux, ProjectTypeBackend, ProjectTypeDevops, ProjectTypeGame, ProjectType3dModel, ProjectTypeIllustration, ProjectTypeOther:
 		return nil
 	default:
 		return fmt.Errorf("portfolio: invalid enum value for project_type field: %q", pt)

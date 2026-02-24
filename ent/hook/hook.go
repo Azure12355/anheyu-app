@@ -201,6 +201,30 @@ func (f PageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PageMutation", m)
 }
 
+// The PortfolioFunc type is an adapter to allow the use of ordinary
+// function as Portfolio mutator.
+type PortfolioFunc func(context.Context, *ent.PortfolioMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PortfolioFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PortfolioMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PortfolioMutation", m)
+}
+
+// The PortfolioTechnologyFunc type is an adapter to allow the use of ordinary
+// function as PortfolioTechnology mutator.
+type PortfolioTechnologyFunc func(context.Context, *ent.PortfolioTechnologyMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f PortfolioTechnologyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.PortfolioTechnologyMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.PortfolioTechnologyMutation", m)
+}
+
 // The PostCategoryFunc type is an adapter to allow the use of ordinary
 // function as PostCategory mutator.
 type PostCategoryFunc func(context.Context, *ent.PostCategoryMutation) (ent.Value, error)

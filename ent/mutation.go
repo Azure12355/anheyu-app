@@ -27,6 +27,8 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
 	"github.com/anzhiyu-c/anheyu-app/ent/notificationtype"
 	"github.com/anzhiyu-c/anheyu-app/ent/page"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfoliotechnology"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
@@ -69,6 +71,8 @@ const (
 	TypeMetadata               = "Metadata"
 	TypeNotificationType       = "NotificationType"
 	TypePage                   = "Page"
+	TypePortfolio              = "Portfolio"
+	TypePortfolioTechnology    = "PortfolioTechnology"
 	TypePostCategory           = "PostCategory"
 	TypePostTag                = "PostTag"
 	TypeSetting                = "Setting"
@@ -20172,6 +20176,2270 @@ func (m *PageMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *PageMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Page edge %s", name)
+}
+
+// PortfolioMutation represents an operation that mutates the Portfolio nodes in the graph.
+type PortfolioMutation struct {
+	config
+	op                   Op
+	typ                  string
+	id                   *uint
+	deleted_at           *time.Time
+	created_at           *time.Time
+	updated_at           *time.Time
+	title                *string
+	description          *string
+	cover_url            *string
+	project_type         *portfolio.ProjectType
+	status               *portfolio.Status
+	demo_url             *string
+	github_url           *string
+	featured             *bool
+	sort_order           *int
+	addsort_order        *int
+	overview             *string
+	role                 *string
+	duration             *string
+	client               *string
+	challenge            *string
+	solution             *string
+	gallery_images       *[]string
+	appendgallery_images []string
+	clearedFields        map[string]struct{}
+	technologies         map[uint]struct{}
+	removedtechnologies  map[uint]struct{}
+	clearedtechnologies  bool
+	done                 bool
+	oldValue             func(context.Context) (*Portfolio, error)
+	predicates           []predicate.Portfolio
+}
+
+var _ ent.Mutation = (*PortfolioMutation)(nil)
+
+// portfolioOption allows management of the mutation configuration using functional options.
+type portfolioOption func(*PortfolioMutation)
+
+// newPortfolioMutation creates new mutation for the Portfolio entity.
+func newPortfolioMutation(c config, op Op, opts ...portfolioOption) *PortfolioMutation {
+	m := &PortfolioMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePortfolio,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPortfolioID sets the ID field of the mutation.
+func withPortfolioID(id uint) portfolioOption {
+	return func(m *PortfolioMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Portfolio
+		)
+		m.oldValue = func(ctx context.Context) (*Portfolio, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Portfolio.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPortfolio sets the old Portfolio of the mutation.
+func withPortfolio(node *Portfolio) portfolioOption {
+	return func(m *PortfolioMutation) {
+		m.oldValue = func(context.Context) (*Portfolio, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PortfolioMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PortfolioMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Portfolio entities.
+func (m *PortfolioMutation) SetID(id uint) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PortfolioMutation) ID() (id uint, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PortfolioMutation) IDs(ctx context.Context) ([]uint, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Portfolio.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *PortfolioMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *PortfolioMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *PortfolioMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[portfolio.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *PortfolioMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *PortfolioMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, portfolio.FieldDeletedAt)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PortfolioMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PortfolioMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PortfolioMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *PortfolioMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *PortfolioMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *PortfolioMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetTitle sets the "title" field.
+func (m *PortfolioMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *PortfolioMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *PortfolioMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *PortfolioMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *PortfolioMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *PortfolioMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[portfolio.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *PortfolioMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *PortfolioMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, portfolio.FieldDescription)
+}
+
+// SetCoverURL sets the "cover_url" field.
+func (m *PortfolioMutation) SetCoverURL(s string) {
+	m.cover_url = &s
+}
+
+// CoverURL returns the value of the "cover_url" field in the mutation.
+func (m *PortfolioMutation) CoverURL() (r string, exists bool) {
+	v := m.cover_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCoverURL returns the old "cover_url" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldCoverURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCoverURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCoverURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCoverURL: %w", err)
+	}
+	return oldValue.CoverURL, nil
+}
+
+// ClearCoverURL clears the value of the "cover_url" field.
+func (m *PortfolioMutation) ClearCoverURL() {
+	m.cover_url = nil
+	m.clearedFields[portfolio.FieldCoverURL] = struct{}{}
+}
+
+// CoverURLCleared returns if the "cover_url" field was cleared in this mutation.
+func (m *PortfolioMutation) CoverURLCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldCoverURL]
+	return ok
+}
+
+// ResetCoverURL resets all changes to the "cover_url" field.
+func (m *PortfolioMutation) ResetCoverURL() {
+	m.cover_url = nil
+	delete(m.clearedFields, portfolio.FieldCoverURL)
+}
+
+// SetProjectType sets the "project_type" field.
+func (m *PortfolioMutation) SetProjectType(pt portfolio.ProjectType) {
+	m.project_type = &pt
+}
+
+// ProjectType returns the value of the "project_type" field in the mutation.
+func (m *PortfolioMutation) ProjectType() (r portfolio.ProjectType, exists bool) {
+	v := m.project_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldProjectType returns the old "project_type" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldProjectType(ctx context.Context) (v portfolio.ProjectType, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldProjectType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldProjectType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldProjectType: %w", err)
+	}
+	return oldValue.ProjectType, nil
+}
+
+// ResetProjectType resets all changes to the "project_type" field.
+func (m *PortfolioMutation) ResetProjectType() {
+	m.project_type = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *PortfolioMutation) SetStatus(po portfolio.Status) {
+	m.status = &po
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *PortfolioMutation) Status() (r portfolio.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldStatus(ctx context.Context) (v portfolio.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *PortfolioMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetDemoURL sets the "demo_url" field.
+func (m *PortfolioMutation) SetDemoURL(s string) {
+	m.demo_url = &s
+}
+
+// DemoURL returns the value of the "demo_url" field in the mutation.
+func (m *PortfolioMutation) DemoURL() (r string, exists bool) {
+	v := m.demo_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDemoURL returns the old "demo_url" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldDemoURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDemoURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDemoURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDemoURL: %w", err)
+	}
+	return oldValue.DemoURL, nil
+}
+
+// ClearDemoURL clears the value of the "demo_url" field.
+func (m *PortfolioMutation) ClearDemoURL() {
+	m.demo_url = nil
+	m.clearedFields[portfolio.FieldDemoURL] = struct{}{}
+}
+
+// DemoURLCleared returns if the "demo_url" field was cleared in this mutation.
+func (m *PortfolioMutation) DemoURLCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldDemoURL]
+	return ok
+}
+
+// ResetDemoURL resets all changes to the "demo_url" field.
+func (m *PortfolioMutation) ResetDemoURL() {
+	m.demo_url = nil
+	delete(m.clearedFields, portfolio.FieldDemoURL)
+}
+
+// SetGithubURL sets the "github_url" field.
+func (m *PortfolioMutation) SetGithubURL(s string) {
+	m.github_url = &s
+}
+
+// GithubURL returns the value of the "github_url" field in the mutation.
+func (m *PortfolioMutation) GithubURL() (r string, exists bool) {
+	v := m.github_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGithubURL returns the old "github_url" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldGithubURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGithubURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGithubURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGithubURL: %w", err)
+	}
+	return oldValue.GithubURL, nil
+}
+
+// ClearGithubURL clears the value of the "github_url" field.
+func (m *PortfolioMutation) ClearGithubURL() {
+	m.github_url = nil
+	m.clearedFields[portfolio.FieldGithubURL] = struct{}{}
+}
+
+// GithubURLCleared returns if the "github_url" field was cleared in this mutation.
+func (m *PortfolioMutation) GithubURLCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldGithubURL]
+	return ok
+}
+
+// ResetGithubURL resets all changes to the "github_url" field.
+func (m *PortfolioMutation) ResetGithubURL() {
+	m.github_url = nil
+	delete(m.clearedFields, portfolio.FieldGithubURL)
+}
+
+// SetFeatured sets the "featured" field.
+func (m *PortfolioMutation) SetFeatured(b bool) {
+	m.featured = &b
+}
+
+// Featured returns the value of the "featured" field in the mutation.
+func (m *PortfolioMutation) Featured() (r bool, exists bool) {
+	v := m.featured
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFeatured returns the old "featured" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldFeatured(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFeatured is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFeatured requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFeatured: %w", err)
+	}
+	return oldValue.Featured, nil
+}
+
+// ResetFeatured resets all changes to the "featured" field.
+func (m *PortfolioMutation) ResetFeatured() {
+	m.featured = nil
+}
+
+// SetSortOrder sets the "sort_order" field.
+func (m *PortfolioMutation) SetSortOrder(i int) {
+	m.sort_order = &i
+	m.addsort_order = nil
+}
+
+// SortOrder returns the value of the "sort_order" field in the mutation.
+func (m *PortfolioMutation) SortOrder() (r int, exists bool) {
+	v := m.sort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSortOrder returns the old "sort_order" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldSortOrder(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSortOrder is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSortOrder requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSortOrder: %w", err)
+	}
+	return oldValue.SortOrder, nil
+}
+
+// AddSortOrder adds i to the "sort_order" field.
+func (m *PortfolioMutation) AddSortOrder(i int) {
+	if m.addsort_order != nil {
+		*m.addsort_order += i
+	} else {
+		m.addsort_order = &i
+	}
+}
+
+// AddedSortOrder returns the value that was added to the "sort_order" field in this mutation.
+func (m *PortfolioMutation) AddedSortOrder() (r int, exists bool) {
+	v := m.addsort_order
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSortOrder resets all changes to the "sort_order" field.
+func (m *PortfolioMutation) ResetSortOrder() {
+	m.sort_order = nil
+	m.addsort_order = nil
+}
+
+// SetOverview sets the "overview" field.
+func (m *PortfolioMutation) SetOverview(s string) {
+	m.overview = &s
+}
+
+// Overview returns the value of the "overview" field in the mutation.
+func (m *PortfolioMutation) Overview() (r string, exists bool) {
+	v := m.overview
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOverview returns the old "overview" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldOverview(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOverview is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOverview requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOverview: %w", err)
+	}
+	return oldValue.Overview, nil
+}
+
+// ClearOverview clears the value of the "overview" field.
+func (m *PortfolioMutation) ClearOverview() {
+	m.overview = nil
+	m.clearedFields[portfolio.FieldOverview] = struct{}{}
+}
+
+// OverviewCleared returns if the "overview" field was cleared in this mutation.
+func (m *PortfolioMutation) OverviewCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldOverview]
+	return ok
+}
+
+// ResetOverview resets all changes to the "overview" field.
+func (m *PortfolioMutation) ResetOverview() {
+	m.overview = nil
+	delete(m.clearedFields, portfolio.FieldOverview)
+}
+
+// SetRole sets the "role" field.
+func (m *PortfolioMutation) SetRole(s string) {
+	m.role = &s
+}
+
+// Role returns the value of the "role" field in the mutation.
+func (m *PortfolioMutation) Role() (r string, exists bool) {
+	v := m.role
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRole returns the old "role" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldRole(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRole is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRole requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRole: %w", err)
+	}
+	return oldValue.Role, nil
+}
+
+// ClearRole clears the value of the "role" field.
+func (m *PortfolioMutation) ClearRole() {
+	m.role = nil
+	m.clearedFields[portfolio.FieldRole] = struct{}{}
+}
+
+// RoleCleared returns if the "role" field was cleared in this mutation.
+func (m *PortfolioMutation) RoleCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldRole]
+	return ok
+}
+
+// ResetRole resets all changes to the "role" field.
+func (m *PortfolioMutation) ResetRole() {
+	m.role = nil
+	delete(m.clearedFields, portfolio.FieldRole)
+}
+
+// SetDuration sets the "duration" field.
+func (m *PortfolioMutation) SetDuration(s string) {
+	m.duration = &s
+}
+
+// Duration returns the value of the "duration" field in the mutation.
+func (m *PortfolioMutation) Duration() (r string, exists bool) {
+	v := m.duration
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDuration returns the old "duration" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldDuration(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDuration is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDuration requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDuration: %w", err)
+	}
+	return oldValue.Duration, nil
+}
+
+// ClearDuration clears the value of the "duration" field.
+func (m *PortfolioMutation) ClearDuration() {
+	m.duration = nil
+	m.clearedFields[portfolio.FieldDuration] = struct{}{}
+}
+
+// DurationCleared returns if the "duration" field was cleared in this mutation.
+func (m *PortfolioMutation) DurationCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldDuration]
+	return ok
+}
+
+// ResetDuration resets all changes to the "duration" field.
+func (m *PortfolioMutation) ResetDuration() {
+	m.duration = nil
+	delete(m.clearedFields, portfolio.FieldDuration)
+}
+
+// SetClient sets the "client" field.
+func (m *PortfolioMutation) SetClient(s string) {
+	m.client = &s
+}
+
+// GetClient returns the value of the "client" field in the mutation.
+func (m *PortfolioMutation) GetClient() (r string, exists bool) {
+	v := m.client
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldClient returns the old "client" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldClient(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldClient is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldClient requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldClient: %w", err)
+	}
+	return oldValue.Client, nil
+}
+
+// ClearClient clears the value of the "client" field.
+func (m *PortfolioMutation) ClearClient() {
+	m.client = nil
+	m.clearedFields[portfolio.FieldClient] = struct{}{}
+}
+
+// ClientCleared returns if the "client" field was cleared in this mutation.
+func (m *PortfolioMutation) ClientCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldClient]
+	return ok
+}
+
+// ResetClient resets all changes to the "client" field.
+func (m *PortfolioMutation) ResetClient() {
+	m.client = nil
+	delete(m.clearedFields, portfolio.FieldClient)
+}
+
+// SetChallenge sets the "challenge" field.
+func (m *PortfolioMutation) SetChallenge(s string) {
+	m.challenge = &s
+}
+
+// Challenge returns the value of the "challenge" field in the mutation.
+func (m *PortfolioMutation) Challenge() (r string, exists bool) {
+	v := m.challenge
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChallenge returns the old "challenge" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldChallenge(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChallenge is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChallenge requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChallenge: %w", err)
+	}
+	return oldValue.Challenge, nil
+}
+
+// ClearChallenge clears the value of the "challenge" field.
+func (m *PortfolioMutation) ClearChallenge() {
+	m.challenge = nil
+	m.clearedFields[portfolio.FieldChallenge] = struct{}{}
+}
+
+// ChallengeCleared returns if the "challenge" field was cleared in this mutation.
+func (m *PortfolioMutation) ChallengeCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldChallenge]
+	return ok
+}
+
+// ResetChallenge resets all changes to the "challenge" field.
+func (m *PortfolioMutation) ResetChallenge() {
+	m.challenge = nil
+	delete(m.clearedFields, portfolio.FieldChallenge)
+}
+
+// SetSolution sets the "solution" field.
+func (m *PortfolioMutation) SetSolution(s string) {
+	m.solution = &s
+}
+
+// Solution returns the value of the "solution" field in the mutation.
+func (m *PortfolioMutation) Solution() (r string, exists bool) {
+	v := m.solution
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSolution returns the old "solution" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldSolution(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSolution is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSolution requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSolution: %w", err)
+	}
+	return oldValue.Solution, nil
+}
+
+// ClearSolution clears the value of the "solution" field.
+func (m *PortfolioMutation) ClearSolution() {
+	m.solution = nil
+	m.clearedFields[portfolio.FieldSolution] = struct{}{}
+}
+
+// SolutionCleared returns if the "solution" field was cleared in this mutation.
+func (m *PortfolioMutation) SolutionCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldSolution]
+	return ok
+}
+
+// ResetSolution resets all changes to the "solution" field.
+func (m *PortfolioMutation) ResetSolution() {
+	m.solution = nil
+	delete(m.clearedFields, portfolio.FieldSolution)
+}
+
+// SetGalleryImages sets the "gallery_images" field.
+func (m *PortfolioMutation) SetGalleryImages(s []string) {
+	m.gallery_images = &s
+	m.appendgallery_images = nil
+}
+
+// GalleryImages returns the value of the "gallery_images" field in the mutation.
+func (m *PortfolioMutation) GalleryImages() (r []string, exists bool) {
+	v := m.gallery_images
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGalleryImages returns the old "gallery_images" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldGalleryImages(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGalleryImages is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGalleryImages requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGalleryImages: %w", err)
+	}
+	return oldValue.GalleryImages, nil
+}
+
+// AppendGalleryImages adds s to the "gallery_images" field.
+func (m *PortfolioMutation) AppendGalleryImages(s []string) {
+	m.appendgallery_images = append(m.appendgallery_images, s...)
+}
+
+// AppendedGalleryImages returns the list of values that were appended to the "gallery_images" field in this mutation.
+func (m *PortfolioMutation) AppendedGalleryImages() ([]string, bool) {
+	if len(m.appendgallery_images) == 0 {
+		return nil, false
+	}
+	return m.appendgallery_images, true
+}
+
+// ClearGalleryImages clears the value of the "gallery_images" field.
+func (m *PortfolioMutation) ClearGalleryImages() {
+	m.gallery_images = nil
+	m.appendgallery_images = nil
+	m.clearedFields[portfolio.FieldGalleryImages] = struct{}{}
+}
+
+// GalleryImagesCleared returns if the "gallery_images" field was cleared in this mutation.
+func (m *PortfolioMutation) GalleryImagesCleared() bool {
+	_, ok := m.clearedFields[portfolio.FieldGalleryImages]
+	return ok
+}
+
+// ResetGalleryImages resets all changes to the "gallery_images" field.
+func (m *PortfolioMutation) ResetGalleryImages() {
+	m.gallery_images = nil
+	m.appendgallery_images = nil
+	delete(m.clearedFields, portfolio.FieldGalleryImages)
+}
+
+// AddTechnologyIDs adds the "technologies" edge to the PortfolioTechnology entity by ids.
+func (m *PortfolioMutation) AddTechnologyIDs(ids ...uint) {
+	if m.technologies == nil {
+		m.technologies = make(map[uint]struct{})
+	}
+	for i := range ids {
+		m.technologies[ids[i]] = struct{}{}
+	}
+}
+
+// ClearTechnologies clears the "technologies" edge to the PortfolioTechnology entity.
+func (m *PortfolioMutation) ClearTechnologies() {
+	m.clearedtechnologies = true
+}
+
+// TechnologiesCleared reports if the "technologies" edge to the PortfolioTechnology entity was cleared.
+func (m *PortfolioMutation) TechnologiesCleared() bool {
+	return m.clearedtechnologies
+}
+
+// RemoveTechnologyIDs removes the "technologies" edge to the PortfolioTechnology entity by IDs.
+func (m *PortfolioMutation) RemoveTechnologyIDs(ids ...uint) {
+	if m.removedtechnologies == nil {
+		m.removedtechnologies = make(map[uint]struct{})
+	}
+	for i := range ids {
+		delete(m.technologies, ids[i])
+		m.removedtechnologies[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedTechnologies returns the removed IDs of the "technologies" edge to the PortfolioTechnology entity.
+func (m *PortfolioMutation) RemovedTechnologiesIDs() (ids []uint) {
+	for id := range m.removedtechnologies {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// TechnologiesIDs returns the "technologies" edge IDs in the mutation.
+func (m *PortfolioMutation) TechnologiesIDs() (ids []uint) {
+	for id := range m.technologies {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetTechnologies resets all changes to the "technologies" edge.
+func (m *PortfolioMutation) ResetTechnologies() {
+	m.technologies = nil
+	m.clearedtechnologies = false
+	m.removedtechnologies = nil
+}
+
+// Where appends a list predicates to the PortfolioMutation builder.
+func (m *PortfolioMutation) Where(ps ...predicate.Portfolio) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PortfolioMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PortfolioMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Portfolio, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PortfolioMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PortfolioMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Portfolio).
+func (m *PortfolioMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PortfolioMutation) Fields() []string {
+	fields := make([]string, 0, 19)
+	if m.deleted_at != nil {
+		fields = append(fields, portfolio.FieldDeletedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, portfolio.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, portfolio.FieldUpdatedAt)
+	}
+	if m.title != nil {
+		fields = append(fields, portfolio.FieldTitle)
+	}
+	if m.description != nil {
+		fields = append(fields, portfolio.FieldDescription)
+	}
+	if m.cover_url != nil {
+		fields = append(fields, portfolio.FieldCoverURL)
+	}
+	if m.project_type != nil {
+		fields = append(fields, portfolio.FieldProjectType)
+	}
+	if m.status != nil {
+		fields = append(fields, portfolio.FieldStatus)
+	}
+	if m.demo_url != nil {
+		fields = append(fields, portfolio.FieldDemoURL)
+	}
+	if m.github_url != nil {
+		fields = append(fields, portfolio.FieldGithubURL)
+	}
+	if m.featured != nil {
+		fields = append(fields, portfolio.FieldFeatured)
+	}
+	if m.sort_order != nil {
+		fields = append(fields, portfolio.FieldSortOrder)
+	}
+	if m.overview != nil {
+		fields = append(fields, portfolio.FieldOverview)
+	}
+	if m.role != nil {
+		fields = append(fields, portfolio.FieldRole)
+	}
+	if m.duration != nil {
+		fields = append(fields, portfolio.FieldDuration)
+	}
+	if m.client != nil {
+		fields = append(fields, portfolio.FieldClient)
+	}
+	if m.challenge != nil {
+		fields = append(fields, portfolio.FieldChallenge)
+	}
+	if m.solution != nil {
+		fields = append(fields, portfolio.FieldSolution)
+	}
+	if m.gallery_images != nil {
+		fields = append(fields, portfolio.FieldGalleryImages)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PortfolioMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case portfolio.FieldDeletedAt:
+		return m.DeletedAt()
+	case portfolio.FieldCreatedAt:
+		return m.CreatedAt()
+	case portfolio.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case portfolio.FieldTitle:
+		return m.Title()
+	case portfolio.FieldDescription:
+		return m.Description()
+	case portfolio.FieldCoverURL:
+		return m.CoverURL()
+	case portfolio.FieldProjectType:
+		return m.ProjectType()
+	case portfolio.FieldStatus:
+		return m.Status()
+	case portfolio.FieldDemoURL:
+		return m.DemoURL()
+	case portfolio.FieldGithubURL:
+		return m.GithubURL()
+	case portfolio.FieldFeatured:
+		return m.Featured()
+	case portfolio.FieldSortOrder:
+		return m.SortOrder()
+	case portfolio.FieldOverview:
+		return m.Overview()
+	case portfolio.FieldRole:
+		return m.Role()
+	case portfolio.FieldDuration:
+		return m.Duration()
+	case portfolio.FieldClient:
+		return m.GetClient()
+	case portfolio.FieldChallenge:
+		return m.Challenge()
+	case portfolio.FieldSolution:
+		return m.Solution()
+	case portfolio.FieldGalleryImages:
+		return m.GalleryImages()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PortfolioMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case portfolio.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case portfolio.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case portfolio.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case portfolio.FieldTitle:
+		return m.OldTitle(ctx)
+	case portfolio.FieldDescription:
+		return m.OldDescription(ctx)
+	case portfolio.FieldCoverURL:
+		return m.OldCoverURL(ctx)
+	case portfolio.FieldProjectType:
+		return m.OldProjectType(ctx)
+	case portfolio.FieldStatus:
+		return m.OldStatus(ctx)
+	case portfolio.FieldDemoURL:
+		return m.OldDemoURL(ctx)
+	case portfolio.FieldGithubURL:
+		return m.OldGithubURL(ctx)
+	case portfolio.FieldFeatured:
+		return m.OldFeatured(ctx)
+	case portfolio.FieldSortOrder:
+		return m.OldSortOrder(ctx)
+	case portfolio.FieldOverview:
+		return m.OldOverview(ctx)
+	case portfolio.FieldRole:
+		return m.OldRole(ctx)
+	case portfolio.FieldDuration:
+		return m.OldDuration(ctx)
+	case portfolio.FieldClient:
+		return m.OldClient(ctx)
+	case portfolio.FieldChallenge:
+		return m.OldChallenge(ctx)
+	case portfolio.FieldSolution:
+		return m.OldSolution(ctx)
+	case portfolio.FieldGalleryImages:
+		return m.OldGalleryImages(ctx)
+	}
+	return nil, fmt.Errorf("unknown Portfolio field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PortfolioMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case portfolio.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case portfolio.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case portfolio.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case portfolio.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
+	case portfolio.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case portfolio.FieldCoverURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCoverURL(v)
+		return nil
+	case portfolio.FieldProjectType:
+		v, ok := value.(portfolio.ProjectType)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetProjectType(v)
+		return nil
+	case portfolio.FieldStatus:
+		v, ok := value.(portfolio.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case portfolio.FieldDemoURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDemoURL(v)
+		return nil
+	case portfolio.FieldGithubURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGithubURL(v)
+		return nil
+	case portfolio.FieldFeatured:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFeatured(v)
+		return nil
+	case portfolio.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSortOrder(v)
+		return nil
+	case portfolio.FieldOverview:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOverview(v)
+		return nil
+	case portfolio.FieldRole:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRole(v)
+		return nil
+	case portfolio.FieldDuration:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDuration(v)
+		return nil
+	case portfolio.FieldClient:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetClient(v)
+		return nil
+	case portfolio.FieldChallenge:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChallenge(v)
+		return nil
+	case portfolio.FieldSolution:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSolution(v)
+		return nil
+	case portfolio.FieldGalleryImages:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGalleryImages(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Portfolio field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PortfolioMutation) AddedFields() []string {
+	var fields []string
+	if m.addsort_order != nil {
+		fields = append(fields, portfolio.FieldSortOrder)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PortfolioMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case portfolio.FieldSortOrder:
+		return m.AddedSortOrder()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PortfolioMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case portfolio.FieldSortOrder:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSortOrder(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Portfolio numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PortfolioMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(portfolio.FieldDeletedAt) {
+		fields = append(fields, portfolio.FieldDeletedAt)
+	}
+	if m.FieldCleared(portfolio.FieldDescription) {
+		fields = append(fields, portfolio.FieldDescription)
+	}
+	if m.FieldCleared(portfolio.FieldCoverURL) {
+		fields = append(fields, portfolio.FieldCoverURL)
+	}
+	if m.FieldCleared(portfolio.FieldDemoURL) {
+		fields = append(fields, portfolio.FieldDemoURL)
+	}
+	if m.FieldCleared(portfolio.FieldGithubURL) {
+		fields = append(fields, portfolio.FieldGithubURL)
+	}
+	if m.FieldCleared(portfolio.FieldOverview) {
+		fields = append(fields, portfolio.FieldOverview)
+	}
+	if m.FieldCleared(portfolio.FieldRole) {
+		fields = append(fields, portfolio.FieldRole)
+	}
+	if m.FieldCleared(portfolio.FieldDuration) {
+		fields = append(fields, portfolio.FieldDuration)
+	}
+	if m.FieldCleared(portfolio.FieldClient) {
+		fields = append(fields, portfolio.FieldClient)
+	}
+	if m.FieldCleared(portfolio.FieldChallenge) {
+		fields = append(fields, portfolio.FieldChallenge)
+	}
+	if m.FieldCleared(portfolio.FieldSolution) {
+		fields = append(fields, portfolio.FieldSolution)
+	}
+	if m.FieldCleared(portfolio.FieldGalleryImages) {
+		fields = append(fields, portfolio.FieldGalleryImages)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PortfolioMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PortfolioMutation) ClearField(name string) error {
+	switch name {
+	case portfolio.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	case portfolio.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case portfolio.FieldCoverURL:
+		m.ClearCoverURL()
+		return nil
+	case portfolio.FieldDemoURL:
+		m.ClearDemoURL()
+		return nil
+	case portfolio.FieldGithubURL:
+		m.ClearGithubURL()
+		return nil
+	case portfolio.FieldOverview:
+		m.ClearOverview()
+		return nil
+	case portfolio.FieldRole:
+		m.ClearRole()
+		return nil
+	case portfolio.FieldDuration:
+		m.ClearDuration()
+		return nil
+	case portfolio.FieldClient:
+		m.ClearClient()
+		return nil
+	case portfolio.FieldChallenge:
+		m.ClearChallenge()
+		return nil
+	case portfolio.FieldSolution:
+		m.ClearSolution()
+		return nil
+	case portfolio.FieldGalleryImages:
+		m.ClearGalleryImages()
+		return nil
+	}
+	return fmt.Errorf("unknown Portfolio nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PortfolioMutation) ResetField(name string) error {
+	switch name {
+	case portfolio.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case portfolio.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case portfolio.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case portfolio.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case portfolio.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case portfolio.FieldCoverURL:
+		m.ResetCoverURL()
+		return nil
+	case portfolio.FieldProjectType:
+		m.ResetProjectType()
+		return nil
+	case portfolio.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case portfolio.FieldDemoURL:
+		m.ResetDemoURL()
+		return nil
+	case portfolio.FieldGithubURL:
+		m.ResetGithubURL()
+		return nil
+	case portfolio.FieldFeatured:
+		m.ResetFeatured()
+		return nil
+	case portfolio.FieldSortOrder:
+		m.ResetSortOrder()
+		return nil
+	case portfolio.FieldOverview:
+		m.ResetOverview()
+		return nil
+	case portfolio.FieldRole:
+		m.ResetRole()
+		return nil
+	case portfolio.FieldDuration:
+		m.ResetDuration()
+		return nil
+	case portfolio.FieldClient:
+		m.ResetClient()
+		return nil
+	case portfolio.FieldChallenge:
+		m.ResetChallenge()
+		return nil
+	case portfolio.FieldSolution:
+		m.ResetSolution()
+		return nil
+	case portfolio.FieldGalleryImages:
+		m.ResetGalleryImages()
+		return nil
+	}
+	return fmt.Errorf("unknown Portfolio field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PortfolioMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.technologies != nil {
+		edges = append(edges, portfolio.EdgeTechnologies)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PortfolioMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case portfolio.EdgeTechnologies:
+		ids := make([]ent.Value, 0, len(m.technologies))
+		for id := range m.technologies {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PortfolioMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedtechnologies != nil {
+		edges = append(edges, portfolio.EdgeTechnologies)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PortfolioMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case portfolio.EdgeTechnologies:
+		ids := make([]ent.Value, 0, len(m.removedtechnologies))
+		for id := range m.removedtechnologies {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PortfolioMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedtechnologies {
+		edges = append(edges, portfolio.EdgeTechnologies)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PortfolioMutation) EdgeCleared(name string) bool {
+	switch name {
+	case portfolio.EdgeTechnologies:
+		return m.clearedtechnologies
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PortfolioMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Portfolio unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PortfolioMutation) ResetEdge(name string) error {
+	switch name {
+	case portfolio.EdgeTechnologies:
+		m.ResetTechnologies()
+		return nil
+	}
+	return fmt.Errorf("unknown Portfolio edge %s", name)
+}
+
+// PortfolioTechnologyMutation represents an operation that mutates the PortfolioTechnology nodes in the graph.
+type PortfolioTechnologyMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *uint
+	deleted_at       *time.Time
+	created_at       *time.Time
+	updated_at       *time.Time
+	technology       *string
+	clearedFields    map[string]struct{}
+	portfolio        *uint
+	clearedportfolio bool
+	done             bool
+	oldValue         func(context.Context) (*PortfolioTechnology, error)
+	predicates       []predicate.PortfolioTechnology
+}
+
+var _ ent.Mutation = (*PortfolioTechnologyMutation)(nil)
+
+// portfoliotechnologyOption allows management of the mutation configuration using functional options.
+type portfoliotechnologyOption func(*PortfolioTechnologyMutation)
+
+// newPortfolioTechnologyMutation creates new mutation for the PortfolioTechnology entity.
+func newPortfolioTechnologyMutation(c config, op Op, opts ...portfoliotechnologyOption) *PortfolioTechnologyMutation {
+	m := &PortfolioTechnologyMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePortfolioTechnology,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPortfolioTechnologyID sets the ID field of the mutation.
+func withPortfolioTechnologyID(id uint) portfoliotechnologyOption {
+	return func(m *PortfolioTechnologyMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *PortfolioTechnology
+		)
+		m.oldValue = func(ctx context.Context) (*PortfolioTechnology, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().PortfolioTechnology.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPortfolioTechnology sets the old PortfolioTechnology of the mutation.
+func withPortfolioTechnology(node *PortfolioTechnology) portfoliotechnologyOption {
+	return func(m *PortfolioTechnologyMutation) {
+		m.oldValue = func(context.Context) (*PortfolioTechnology, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PortfolioTechnologyMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PortfolioTechnologyMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of PortfolioTechnology entities.
+func (m *PortfolioTechnologyMutation) SetID(id uint) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PortfolioTechnologyMutation) ID() (id uint, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PortfolioTechnologyMutation) IDs(ctx context.Context) ([]uint, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uint{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().PortfolioTechnology.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (m *PortfolioTechnologyMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *PortfolioTechnologyMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the PortfolioTechnology entity.
+// If the PortfolioTechnology object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioTechnologyMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *PortfolioTechnologyMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[portfoliotechnology.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *PortfolioTechnologyMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[portfoliotechnology.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *PortfolioTechnologyMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, portfoliotechnology.FieldDeletedAt)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PortfolioTechnologyMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PortfolioTechnologyMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the PortfolioTechnology entity.
+// If the PortfolioTechnology object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioTechnologyMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PortfolioTechnologyMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *PortfolioTechnologyMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *PortfolioTechnologyMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the PortfolioTechnology entity.
+// If the PortfolioTechnology object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioTechnologyMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *PortfolioTechnologyMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetTechnology sets the "technology" field.
+func (m *PortfolioTechnologyMutation) SetTechnology(s string) {
+	m.technology = &s
+}
+
+// Technology returns the value of the "technology" field in the mutation.
+func (m *PortfolioTechnologyMutation) Technology() (r string, exists bool) {
+	v := m.technology
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTechnology returns the old "technology" field's value of the PortfolioTechnology entity.
+// If the PortfolioTechnology object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioTechnologyMutation) OldTechnology(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTechnology is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTechnology requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTechnology: %w", err)
+	}
+	return oldValue.Technology, nil
+}
+
+// ResetTechnology resets all changes to the "technology" field.
+func (m *PortfolioTechnologyMutation) ResetTechnology() {
+	m.technology = nil
+}
+
+// SetPortfolioID sets the "portfolio" edge to the Portfolio entity by id.
+func (m *PortfolioTechnologyMutation) SetPortfolioID(id uint) {
+	m.portfolio = &id
+}
+
+// ClearPortfolio clears the "portfolio" edge to the Portfolio entity.
+func (m *PortfolioTechnologyMutation) ClearPortfolio() {
+	m.clearedportfolio = true
+}
+
+// PortfolioCleared reports if the "portfolio" edge to the Portfolio entity was cleared.
+func (m *PortfolioTechnologyMutation) PortfolioCleared() bool {
+	return m.clearedportfolio
+}
+
+// PortfolioID returns the "portfolio" edge ID in the mutation.
+func (m *PortfolioTechnologyMutation) PortfolioID() (id uint, exists bool) {
+	if m.portfolio != nil {
+		return *m.portfolio, true
+	}
+	return
+}
+
+// PortfolioIDs returns the "portfolio" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// PortfolioID instead. It exists only for internal usage by the builders.
+func (m *PortfolioTechnologyMutation) PortfolioIDs() (ids []uint) {
+	if id := m.portfolio; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetPortfolio resets all changes to the "portfolio" edge.
+func (m *PortfolioTechnologyMutation) ResetPortfolio() {
+	m.portfolio = nil
+	m.clearedportfolio = false
+}
+
+// Where appends a list predicates to the PortfolioTechnologyMutation builder.
+func (m *PortfolioTechnologyMutation) Where(ps ...predicate.PortfolioTechnology) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PortfolioTechnologyMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PortfolioTechnologyMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.PortfolioTechnology, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PortfolioTechnologyMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PortfolioTechnologyMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (PortfolioTechnology).
+func (m *PortfolioTechnologyMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PortfolioTechnologyMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.deleted_at != nil {
+		fields = append(fields, portfoliotechnology.FieldDeletedAt)
+	}
+	if m.created_at != nil {
+		fields = append(fields, portfoliotechnology.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, portfoliotechnology.FieldUpdatedAt)
+	}
+	if m.technology != nil {
+		fields = append(fields, portfoliotechnology.FieldTechnology)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PortfolioTechnologyMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case portfoliotechnology.FieldDeletedAt:
+		return m.DeletedAt()
+	case portfoliotechnology.FieldCreatedAt:
+		return m.CreatedAt()
+	case portfoliotechnology.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case portfoliotechnology.FieldTechnology:
+		return m.Technology()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PortfolioTechnologyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case portfoliotechnology.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
+	case portfoliotechnology.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case portfoliotechnology.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case portfoliotechnology.FieldTechnology:
+		return m.OldTechnology(ctx)
+	}
+	return nil, fmt.Errorf("unknown PortfolioTechnology field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PortfolioTechnologyMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case portfoliotechnology.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
+	case portfoliotechnology.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case portfoliotechnology.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case portfoliotechnology.FieldTechnology:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTechnology(v)
+		return nil
+	}
+	return fmt.Errorf("unknown PortfolioTechnology field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PortfolioTechnologyMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PortfolioTechnologyMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PortfolioTechnologyMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown PortfolioTechnology numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PortfolioTechnologyMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(portfoliotechnology.FieldDeletedAt) {
+		fields = append(fields, portfoliotechnology.FieldDeletedAt)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PortfolioTechnologyMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PortfolioTechnologyMutation) ClearField(name string) error {
+	switch name {
+	case portfoliotechnology.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown PortfolioTechnology nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PortfolioTechnologyMutation) ResetField(name string) error {
+	switch name {
+	case portfoliotechnology.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
+	case portfoliotechnology.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case portfoliotechnology.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case portfoliotechnology.FieldTechnology:
+		m.ResetTechnology()
+		return nil
+	}
+	return fmt.Errorf("unknown PortfolioTechnology field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PortfolioTechnologyMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.portfolio != nil {
+		edges = append(edges, portfoliotechnology.EdgePortfolio)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PortfolioTechnologyMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case portfoliotechnology.EdgePortfolio:
+		if id := m.portfolio; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PortfolioTechnologyMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PortfolioTechnologyMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PortfolioTechnologyMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedportfolio {
+		edges = append(edges, portfoliotechnology.EdgePortfolio)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PortfolioTechnologyMutation) EdgeCleared(name string) bool {
+	switch name {
+	case portfoliotechnology.EdgePortfolio:
+		return m.clearedportfolio
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PortfolioTechnologyMutation) ClearEdge(name string) error {
+	switch name {
+	case portfoliotechnology.EdgePortfolio:
+		m.ClearPortfolio()
+		return nil
+	}
+	return fmt.Errorf("unknown PortfolioTechnology unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PortfolioTechnologyMutation) ResetEdge(name string) error {
+	switch name {
+	case portfoliotechnology.EdgePortfolio:
+		m.ResetPortfolio()
+		return nil
+	}
+	return fmt.Errorf("unknown PortfolioTechnology edge %s", name)
 }
 
 // PostCategoryMutation represents an operation that mutates the PostCategory nodes in the graph.

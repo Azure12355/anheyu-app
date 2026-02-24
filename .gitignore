@@ -19,3 +19,9 @@ themes
 backup
 static
 DEVELOPMENT_WORKFLOW.md
+.idea/
+.serena/
+.claude/
+CLAUDE.md
+
+assets/

@@ -54,6 +54,12 @@ type NotificationType func(*sql.Selector)
 // Page is the predicate function for page builders.
 type Page func(*sql.Selector)
 
+// Portfolio is the predicate function for portfolio builders.
+type Portfolio func(*sql.Selector)
+
+// PortfolioTechnology is the predicate function for portfoliotechnology builders.
+type PortfolioTechnology func(*sql.Selector)
+
 // PostCategory is the predicate function for postcategory builders.
 type PostCategory func(*sql.Selector)
 

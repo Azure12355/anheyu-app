@@ -494,6 +494,54 @@ func (f PageMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) 
 	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PageMutation", m)
 }
 
+// The PortfolioQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type PortfolioQueryRuleFunc func(context.Context, *ent.PortfolioQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f PortfolioQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.PortfolioQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.PortfolioQuery", q)
+}
+
+// The PortfolioMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type PortfolioMutationRuleFunc func(context.Context, *ent.PortfolioMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f PortfolioMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.PortfolioMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PortfolioMutation", m)
+}
+
+// The PortfolioTechnologyQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type PortfolioTechnologyQueryRuleFunc func(context.Context, *ent.PortfolioTechnologyQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f PortfolioTechnologyQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.PortfolioTechnologyQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.PortfolioTechnologyQuery", q)
+}
+
+// The PortfolioTechnologyMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type PortfolioTechnologyMutationRuleFunc func(context.Context, *ent.PortfolioTechnologyMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f PortfolioTechnologyMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.PortfolioTechnologyMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.PortfolioTechnologyMutation", m)
+}
+
 // The PostCategoryQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type PostCategoryQueryRuleFunc func(context.Context, *ent.PostCategoryQuery) error

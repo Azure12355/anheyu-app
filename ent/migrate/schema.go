@@ -549,6 +549,77 @@ var (
 		Columns:    PagesColumns,
 		PrimaryKey: []*schema.Column{PagesColumns[0]},
 	}
+	// PortfoliosColumns holds the columns for the "portfolios" table.
+	PortfoliosColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间"},
+		{Name: "title", Type: field.TypeString, Size: 200, Comment: "项目标题"},
+		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "项目简介"},
+		{Name: "cover_url", Type: field.TypeString, Nullable: true, Comment: "封面图URL"},
+		{Name: "project_type", Type: field.TypeEnum, Comment: "项目类型", Enums: []string{"frontend", "vibecoding", "fullstack", "miniprogram", "app", "uiux", "backend", "devops", "game", "3d-model", "illustration", "other"}, Default: "other"},
+		{Name: "status", Type: field.TypeEnum, Comment: "项目状态", Enums: []string{"developing", "completed", "archived"}, Default: "developing"},
+		{Name: "demo_url", Type: field.TypeString, Nullable: true, Size: 500, Comment: "演示地址"},
+		{Name: "github_url", Type: field.TypeString, Nullable: true, Size: 500, Comment: "GitHub地址"},
+		{Name: "featured", Type: field.TypeBool, Comment: "是否精选", Default: false},
+		{Name: "sort_order", Type: field.TypeInt, Comment: "排序权重", Default: 0},
+		{Name: "overview", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "项目概述"},
+		{Name: "role", Type: field.TypeString, Nullable: true, Size: 200, Comment: "担任角色"},
+		{Name: "duration", Type: field.TypeString, Nullable: true, Size: 100, Comment: "项目周期"},
+		{Name: "client", Type: field.TypeString, Nullable: true, Size: 200, Comment: "所属客户"},
+		{Name: "challenge", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "挑战描述"},
+		{Name: "solution", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "解决方案"},
+		{Name: "gallery_images", Type: field.TypeJSON, Nullable: true, Comment: "图库图片URL列表"},
+	}
+	// PortfoliosTable holds the schema information for the "portfolios" table.
+	PortfoliosTable = &schema.Table{
+		Name:       "portfolios",
+		Comment:    "项目作品集表",
+		Columns:    PortfoliosColumns,
+		PrimaryKey: []*schema.Column{PortfoliosColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "portfolio_project_type_status",
+				Unique:  false,
+				Columns: []*schema.Column{PortfoliosColumns[7], PortfoliosColumns[8]},
+			},
+			{
+				Name:    "portfolio_featured_status",
+				Unique:  false,
+				Columns: []*schema.Column{PortfoliosColumns[11], PortfoliosColumns[8]},
+			},
+			{
+				Name:    "portfolio_sort_order",
+				Unique:  false,
+				Columns: []*schema.Column{PortfoliosColumns[12]},
+			},
+		},
+	}
+	// PortfolioTechnologiesColumns holds the columns for the "portfolio_technologies" table.
+	PortfolioTechnologiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUint, Increment: true},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
+		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间"},
+		{Name: "technology", Type: field.TypeString, Unique: true, Size: 100, Comment: "技术名称"},
+		{Name: "portfolio_technologies", Type: field.TypeUint, Nullable: true},
+	}
+	// PortfolioTechnologiesTable holds the schema information for the "portfolio_technologies" table.
+	PortfolioTechnologiesTable = &schema.Table{
+		Name:       "portfolio_technologies",
+		Comment:    "项目技术栈表",
+		Columns:    PortfolioTechnologiesColumns,
+		PrimaryKey: []*schema.Column{PortfolioTechnologiesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "portfolio_technologies_portfolios_technologies",
+				Columns:    []*schema.Column{PortfolioTechnologiesColumns[5]},
+				RefColumns: []*schema.Column{PortfoliosColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+	}
 	// PostCategoriesColumns holds the columns for the "post_categories" table.
 	PostCategoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUint, Increment: true},
@@ -1042,6 +1113,8 @@ var (
 		MetadataTable,
 		NotificationTypesTable,
 		PagesTable,
+		PortfoliosTable,
+		PortfolioTechnologiesTable,
 		PostCategoriesTable,
 		PostTagsTable,
 		SettingsTable,
@@ -1076,6 +1149,7 @@ func init() {
 	FileEntitiesTable.ForeignKeys[1].RefTable = FilesTable
 	LinksTable.ForeignKeys[0].RefTable = LinkCategoriesTable
 	MetadataTable.ForeignKeys[0].RefTable = FilesTable
+	PortfolioTechnologiesTable.ForeignKeys[0].RefTable = PortfoliosTable
 	UsersTable.ForeignKeys[0].RefTable = UserGroupsTable
 	UserInstalledThemesTable.ForeignKeys[0].RefTable = UsersTable
 	UserNotificationConfigsTable.ForeignKeys[0].RefTable = NotificationTypesTable

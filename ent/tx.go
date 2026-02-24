@@ -44,6 +44,10 @@ type Tx struct {
 	NotificationType *NotificationTypeClient
 	// Page is the client for interacting with the Page builders.
 	Page *PageClient
+	// Portfolio is the client for interacting with the Portfolio builders.
+	Portfolio *PortfolioClient
+	// PortfolioTechnology is the client for interacting with the PortfolioTechnology builders.
+	PortfolioTechnology *PortfolioTechnologyClient
 	// PostCategory is the client for interacting with the PostCategory builders.
 	PostCategory *PostCategoryClient
 	// PostTag is the client for interacting with the PostTag builders.
@@ -217,6 +221,8 @@ func (tx *Tx) init() {
 	tx.Metadata = NewMetadataClient(tx.config)
 	tx.NotificationType = NewNotificationTypeClient(tx.config)
 	tx.Page = NewPageClient(tx.config)
+	tx.Portfolio = NewPortfolioClient(tx.config)
+	tx.PortfolioTechnology = NewPortfolioTechnologyClient(tx.config)
 	tx.PostCategory = NewPostCategoryClient(tx.config)
 	tx.PostTag = NewPostTagClient(tx.config)
 	tx.Setting = NewSettingClient(tx.config)

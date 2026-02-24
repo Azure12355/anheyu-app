@@ -68,7 +68,20 @@ func (Portfolio) Fields() []ent.Field {
 
 		// --- 类型与状态 ---
 		field.Enum("project_type").
-			Values("frontend", "vibecoding", "fullstack", "miniprogram", "app", "other").
+			Values(
+				"frontend",
+				"vibecoding",
+				"fullstack",
+				"miniprogram",
+				"app",
+				"uiux",
+				"backend",
+				"devops",
+				"game",
+				"3d-model",
+				"illustration",
+				"other",
+			).
 			Comment("项目类型").
 			Default("other"),
 		field.Enum("status").

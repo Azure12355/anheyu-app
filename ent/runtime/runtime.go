@@ -21,6 +21,8 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/metadata"
 	"github.com/anzhiyu-c/anheyu-app/ent/notificationtype"
 	"github.com/anzhiyu-c/anheyu-app/ent/page"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfoliotechnology"
 	"github.com/anzhiyu-c/anheyu-app/ent/postcategory"
 	"github.com/anzhiyu-c/anheyu-app/ent/posttag"
 	"github.com/anzhiyu-c/anheyu-app/ent/schema"
@@ -678,6 +680,100 @@ func init() {
 	page.DefaultUpdatedAt = pageDescUpdatedAt.Default.(func() time.Time)
 	// page.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	page.UpdateDefaultUpdatedAt = pageDescUpdatedAt.UpdateDefault.(func() time.Time)
+	portfolioMixin := schema.Portfolio{}.Mixin()
+	portfolioMixinHooks0 := portfolioMixin[0].Hooks()
+	portfolio.Hooks[0] = portfolioMixinHooks0[0]
+	portfolioFields := schema.Portfolio{}.Fields()
+	_ = portfolioFields
+	// portfolioDescCreatedAt is the schema descriptor for created_at field.
+	portfolioDescCreatedAt := portfolioFields[1].Descriptor()
+	// portfolio.DefaultCreatedAt holds the default value on creation for the created_at field.
+	portfolio.DefaultCreatedAt = portfolioDescCreatedAt.Default.(func() time.Time)
+	// portfolioDescUpdatedAt is the schema descriptor for updated_at field.
+	portfolioDescUpdatedAt := portfolioFields[2].Descriptor()
+	// portfolio.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	portfolio.DefaultUpdatedAt = portfolioDescUpdatedAt.Default.(func() time.Time)
+	// portfolio.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	portfolio.UpdateDefaultUpdatedAt = portfolioDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// portfolioDescTitle is the schema descriptor for title field.
+	portfolioDescTitle := portfolioFields[3].Descriptor()
+	// portfolio.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	portfolio.TitleValidator = func() func(string) error {
+		validators := portfolioDescTitle.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(title string) error {
+			for _, fn := range fns {
+				if err := fn(title); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// portfolioDescDemoURL is the schema descriptor for demo_url field.
+	portfolioDescDemoURL := portfolioFields[8].Descriptor()
+	// portfolio.DemoURLValidator is a validator for the "demo_url" field. It is called by the builders before save.
+	portfolio.DemoURLValidator = portfolioDescDemoURL.Validators[0].(func(string) error)
+	// portfolioDescGithubURL is the schema descriptor for github_url field.
+	portfolioDescGithubURL := portfolioFields[9].Descriptor()
+	// portfolio.GithubURLValidator is a validator for the "github_url" field. It is called by the builders before save.
+	portfolio.GithubURLValidator = portfolioDescGithubURL.Validators[0].(func(string) error)
+	// portfolioDescFeatured is the schema descriptor for featured field.
+	portfolioDescFeatured := portfolioFields[10].Descriptor()
+	// portfolio.DefaultFeatured holds the default value on creation for the featured field.
+	portfolio.DefaultFeatured = portfolioDescFeatured.Default.(bool)
+	// portfolioDescSortOrder is the schema descriptor for sort_order field.
+	portfolioDescSortOrder := portfolioFields[11].Descriptor()
+	// portfolio.DefaultSortOrder holds the default value on creation for the sort_order field.
+	portfolio.DefaultSortOrder = portfolioDescSortOrder.Default.(int)
+	// portfolioDescRole is the schema descriptor for role field.
+	portfolioDescRole := portfolioFields[13].Descriptor()
+	// portfolio.RoleValidator is a validator for the "role" field. It is called by the builders before save.
+	portfolio.RoleValidator = portfolioDescRole.Validators[0].(func(string) error)
+	// portfolioDescDuration is the schema descriptor for duration field.
+	portfolioDescDuration := portfolioFields[14].Descriptor()
+	// portfolio.DurationValidator is a validator for the "duration" field. It is called by the builders before save.
+	portfolio.DurationValidator = portfolioDescDuration.Validators[0].(func(string) error)
+	// portfolioDescClient is the schema descriptor for client field.
+	portfolioDescClient := portfolioFields[15].Descriptor()
+	// portfolio.ClientValidator is a validator for the "client" field. It is called by the builders before save.
+	portfolio.ClientValidator = portfolioDescClient.Validators[0].(func(string) error)
+	portfoliotechnologyMixin := schema.PortfolioTechnology{}.Mixin()
+	portfoliotechnologyMixinHooks0 := portfoliotechnologyMixin[0].Hooks()
+	portfoliotechnology.Hooks[0] = portfoliotechnologyMixinHooks0[0]
+	portfoliotechnologyFields := schema.PortfolioTechnology{}.Fields()
+	_ = portfoliotechnologyFields
+	// portfoliotechnologyDescCreatedAt is the schema descriptor for created_at field.
+	portfoliotechnologyDescCreatedAt := portfoliotechnologyFields[1].Descriptor()
+	// portfoliotechnology.DefaultCreatedAt holds the default value on creation for the created_at field.
+	portfoliotechnology.DefaultCreatedAt = portfoliotechnologyDescCreatedAt.Default.(func() time.Time)
+	// portfoliotechnologyDescUpdatedAt is the schema descriptor for updated_at field.
+	portfoliotechnologyDescUpdatedAt := portfoliotechnologyFields[2].Descriptor()
+	// portfoliotechnology.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	portfoliotechnology.DefaultUpdatedAt = portfoliotechnologyDescUpdatedAt.Default.(func() time.Time)
+	// portfoliotechnology.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	portfoliotechnology.UpdateDefaultUpdatedAt = portfoliotechnologyDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// portfoliotechnologyDescTechnology is the schema descriptor for technology field.
+	portfoliotechnologyDescTechnology := portfoliotechnologyFields[3].Descriptor()
+	// portfoliotechnology.TechnologyValidator is a validator for the "technology" field. It is called by the builders before save.
+	portfoliotechnology.TechnologyValidator = func() func(string) error {
+		validators := portfoliotechnologyDescTechnology.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(technology string) error {
+			for _, fn := range fns {
+				if err := fn(technology); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	postcategoryMixin := schema.PostCategory{}.Mixin()
 	postcategoryMixinHooks0 := postcategoryMixin[0].Hooks()
 	postcategory.Hooks[0] = postcategoryMixinHooks0[0]
@@ -1231,6 +1327,6 @@ func init() {
 }
 
 const (
-	Version = "v0.14.5"                                         // Version of ent codegen.
-	Sum     = "h1:Rj2WOYJtCkWyFo6a+5wB3EfBRP0rnx1fMk6gGA0UUe4=" // Sum of ent codegen.
+	Version = "v0.14.4"                                         // Version of ent codegen.
+	Sum     = "h1:/DhDraSLXIkBhyiVoJeSshr4ZYi7femzhj6/TckzZuI=" // Sum of ent codegen.
 )

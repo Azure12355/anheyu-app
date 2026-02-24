@@ -47,16 +47,19 @@ func (PortfolioTechnology) Fields() []ent.Field {
 
 		field.Time("created_at").
 			Default(time.Now).
-			Immutable(),
+			Immutable().
+			Comment("创建时间"),
 
 		field.Time("updated_at").
 			Default(time.Now).
-			UpdateDefault(time.Now),
+			UpdateDefault(time.Now).
+			Comment("更新时间"),
 
 		field.String("technology").
 			Comment("技术名称").
 			NotEmpty().
-			MaxLen(100),
+			MaxLen(100).
+			Unique(),
 	}
 }
 
