@@ -14,6 +14,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/file"
 	"github.com/anzhiyu-c/anheyu-app/ent/link"
 	"github.com/anzhiyu-c/anheyu-app/ent/linkcategory"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
 	"github.com/anzhiyu-c/anheyu-app/ent/setting"
 	"github.com/anzhiyu-c/anheyu-app/ent/usergroup"
 	"github.com/anzhiyu-c/anheyu-app/internal/configdef"
@@ -39,6 +40,19 @@ func (b *Bootstrapper) InitializeDatabase() error {
 		return fmt.Errorf("数据库 schema 创建/更新失败: %w", err)
 	}
 	log.Println("--- 数据库 Schema 同步成功 ---")
+
+	// 迁移 featured 到 tier
+	// 将 featured=true 的迁移到 tier=featured
+	count, err := b.entClient.Portfolio.Update().
+		Where(portfolio.FeaturedEQ(true)).
+		SetTier("featured").
+		Save(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to migrate featured portfolios: %w", err)
+	}
+	if count > 0 {
+		log.Printf("Migrated %d featured portfolios to tier=featured", count)
+	}
 
 	b.syncSettings()
 	b.initUserGroups()
