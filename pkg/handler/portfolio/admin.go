@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	portfoliosvc "github.com/anzhiyu-c/anheyu-app/pkg/service/portfolio"
 )
@@ -46,9 +47,18 @@ func (h *AdminHandler) Create(c *gin.Context) {
 
 	portfolio, err := h.svc.Create(c.Request.Context(), &req)
 	if err != nil {
+		// 判断是否为约束冲突错误
+		if ent.IsConstraintError(err) {
+			c.JSON(http.StatusConflict, gin.H{
+				"code":    409,
+				"message": "数据冲突，可能存在重复记录",
+				"data":    nil,
+			})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
-			"message": "创建失败",
+			"message": "创建失败: " + err.Error(),
 			"data":    nil,
 		})
 		return
@@ -86,9 +96,18 @@ func (h *AdminHandler) Update(c *gin.Context) {
 
 	portfolio, err := h.svc.Update(c.Request.Context(), id, &req)
 	if err != nil {
+		// 判断是否为 NotFound 错误
+		if ent.IsNotFound(err) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "作品不存在",
+				"data":    nil,
+			})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
-			"message": "更新失败",
+			"message": "更新失败: " + err.Error(),
 			"data":    nil,
 		})
 		return
@@ -116,9 +135,18 @@ func (h *AdminHandler) Delete(c *gin.Context) {
 
 	err := h.svc.Delete(c.Request.Context(), id)
 	if err != nil {
+		// 判断是否为 NotFound 错误
+		if ent.IsNotFound(err) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "作品不存在",
+				"data":    nil,
+			})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
-			"message": "删除失败",
+			"message": "删除失败: " + err.Error(),
 			"data":    nil,
 		})
 		return
@@ -152,11 +180,21 @@ func (h *AdminHandler) UpdateSort(c *gin.Context) {
 		return
 	}
 
+	// 限制批量更新的数量，防止恶意请求
+	if len(sorts) > 100 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    400,
+			"message": "单次更新数量不能超过100个",
+			"data":    nil,
+		})
+		return
+	}
+
 	err := h.svc.UpdateSort(c.Request.Context(), sorts)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"code":    500,
-			"message": "更新排序失败",
+			"message": "更新排序失败: " + err.Error(),
 			"data":    nil,
 		})
 		return

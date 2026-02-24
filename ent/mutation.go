@@ -22102,6 +22102,42 @@ func (m *PortfolioTechnologyMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetPortfolioID sets the "portfolio_id" field.
+func (m *PortfolioTechnologyMutation) SetPortfolioID(u uint) {
+	m.portfolio = &u
+}
+
+// PortfolioID returns the value of the "portfolio_id" field in the mutation.
+func (m *PortfolioTechnologyMutation) PortfolioID() (r uint, exists bool) {
+	v := m.portfolio
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPortfolioID returns the old "portfolio_id" field's value of the PortfolioTechnology entity.
+// If the PortfolioTechnology object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioTechnologyMutation) OldPortfolioID(ctx context.Context) (v uint, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPortfolioID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPortfolioID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPortfolioID: %w", err)
+	}
+	return oldValue.PortfolioID, nil
+}
+
+// ResetPortfolioID resets all changes to the "portfolio_id" field.
+func (m *PortfolioTechnologyMutation) ResetPortfolioID() {
+	m.portfolio = nil
+}
+
 // SetTechnology sets the "technology" field.
 func (m *PortfolioTechnologyMutation) SetTechnology(s string) {
 	m.technology = &s
@@ -22138,27 +22174,15 @@ func (m *PortfolioTechnologyMutation) ResetTechnology() {
 	m.technology = nil
 }
 
-// SetPortfolioID sets the "portfolio" edge to the Portfolio entity by id.
-func (m *PortfolioTechnologyMutation) SetPortfolioID(id uint) {
-	m.portfolio = &id
-}
-
 // ClearPortfolio clears the "portfolio" edge to the Portfolio entity.
 func (m *PortfolioTechnologyMutation) ClearPortfolio() {
 	m.clearedportfolio = true
+	m.clearedFields[portfoliotechnology.FieldPortfolioID] = struct{}{}
 }
 
 // PortfolioCleared reports if the "portfolio" edge to the Portfolio entity was cleared.
 func (m *PortfolioTechnologyMutation) PortfolioCleared() bool {
 	return m.clearedportfolio
-}
-
-// PortfolioID returns the "portfolio" edge ID in the mutation.
-func (m *PortfolioTechnologyMutation) PortfolioID() (id uint, exists bool) {
-	if m.portfolio != nil {
-		return *m.portfolio, true
-	}
-	return
 }
 
 // PortfolioIDs returns the "portfolio" edge IDs in the mutation.
@@ -22211,7 +22235,7 @@ func (m *PortfolioTechnologyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PortfolioTechnologyMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.deleted_at != nil {
 		fields = append(fields, portfoliotechnology.FieldDeletedAt)
 	}
@@ -22220,6 +22244,9 @@ func (m *PortfolioTechnologyMutation) Fields() []string {
 	}
 	if m.updated_at != nil {
 		fields = append(fields, portfoliotechnology.FieldUpdatedAt)
+	}
+	if m.portfolio != nil {
+		fields = append(fields, portfoliotechnology.FieldPortfolioID)
 	}
 	if m.technology != nil {
 		fields = append(fields, portfoliotechnology.FieldTechnology)
@@ -22238,6 +22265,8 @@ func (m *PortfolioTechnologyMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case portfoliotechnology.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case portfoliotechnology.FieldPortfolioID:
+		return m.PortfolioID()
 	case portfoliotechnology.FieldTechnology:
 		return m.Technology()
 	}
@@ -22255,6 +22284,8 @@ func (m *PortfolioTechnologyMutation) OldField(ctx context.Context, name string)
 		return m.OldCreatedAt(ctx)
 	case portfoliotechnology.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case portfoliotechnology.FieldPortfolioID:
+		return m.OldPortfolioID(ctx)
 	case portfoliotechnology.FieldTechnology:
 		return m.OldTechnology(ctx)
 	}
@@ -22287,6 +22318,13 @@ func (m *PortfolioTechnologyMutation) SetField(name string, value ent.Value) err
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case portfoliotechnology.FieldPortfolioID:
+		v, ok := value.(uint)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPortfolioID(v)
+		return nil
 	case portfoliotechnology.FieldTechnology:
 		v, ok := value.(string)
 		if !ok {
@@ -22301,13 +22339,16 @@ func (m *PortfolioTechnologyMutation) SetField(name string, value ent.Value) err
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *PortfolioTechnologyMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *PortfolioTechnologyMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	}
 	return nil, false
 }
 
@@ -22360,6 +22401,9 @@ func (m *PortfolioTechnologyMutation) ResetField(name string) error {
 		return nil
 	case portfoliotechnology.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case portfoliotechnology.FieldPortfolioID:
+		m.ResetPortfolioID()
 		return nil
 	case portfoliotechnology.FieldTechnology:
 		m.ResetTechnology()

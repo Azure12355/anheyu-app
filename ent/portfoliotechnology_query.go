@@ -24,7 +24,6 @@ type PortfolioTechnologyQuery struct {
 	inters        []Interceptor
 	predicates    []predicate.PortfolioTechnology
 	withPortfolio *PortfolioQuery
-	withFKs       bool
 	modifiers     []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -372,18 +371,11 @@ func (ptq *PortfolioTechnologyQuery) prepareQuery(ctx context.Context) error {
 func (ptq *PortfolioTechnologyQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*PortfolioTechnology, error) {
 	var (
 		nodes       = []*PortfolioTechnology{}
-		withFKs     = ptq.withFKs
 		_spec       = ptq.querySpec()
 		loadedTypes = [1]bool{
 			ptq.withPortfolio != nil,
 		}
 	)
-	if ptq.withPortfolio != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, portfoliotechnology.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*PortfolioTechnology).scanValues(nil, columns)
 	}
@@ -418,10 +410,7 @@ func (ptq *PortfolioTechnologyQuery) loadPortfolio(ctx context.Context, query *P
 	ids := make([]uint, 0, len(nodes))
 	nodeids := make(map[uint][]*PortfolioTechnology)
 	for i := range nodes {
-		if nodes[i].portfolio_technologies == nil {
-			continue
-		}
-		fk := *nodes[i].portfolio_technologies
+		fk := nodes[i].PortfolioID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -438,7 +427,7 @@ func (ptq *PortfolioTechnologyQuery) loadPortfolio(ctx context.Context, query *P
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "portfolio_technologies" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "portfolio_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -474,6 +463,9 @@ func (ptq *PortfolioTechnologyQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != portfoliotechnology.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if ptq.withPortfolio != nil {
+			_spec.Node.AddColumnOnce(portfoliotechnology.FieldPortfolioID)
 		}
 	}
 	if ps := ptq.predicates; len(ps) > 0 {

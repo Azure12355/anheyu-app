@@ -418,7 +418,9 @@ func (pq *PortfolioQuery) loadTechnologies(ctx context.Context, query *Portfolio
 			init(nodes[i])
 		}
 	}
-	query.withFKs = true
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(portfoliotechnology.FieldPortfolioID)
+	}
 	query.Where(predicate.PortfolioTechnology(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(portfolio.TechnologiesColumn), fks...))
 	}))
@@ -427,13 +429,10 @@ func (pq *PortfolioQuery) loadTechnologies(ctx context.Context, query *Portfolio
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.portfolio_technologies
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "portfolio_technologies" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		fk := n.PortfolioID
+		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "portfolio_technologies" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "portfolio_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}

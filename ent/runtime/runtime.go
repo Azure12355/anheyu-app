@@ -757,7 +757,7 @@ func init() {
 	// portfoliotechnology.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	portfoliotechnology.UpdateDefaultUpdatedAt = portfoliotechnologyDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// portfoliotechnologyDescTechnology is the schema descriptor for technology field.
-	portfoliotechnologyDescTechnology := portfoliotechnologyFields[3].Descriptor()
+	portfoliotechnologyDescTechnology := portfoliotechnologyFields[4].Descriptor()
 	// portfoliotechnology.TechnologyValidator is a validator for the "technology" field. It is called by the builders before save.
 	portfoliotechnology.TechnologyValidator = func() func(string) error {
 		validators := portfoliotechnologyDescTechnology.Validators

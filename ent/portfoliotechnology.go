@@ -24,13 +24,14 @@ type PortfolioTechnology struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// 更新时间
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// 所属作品ID
+	PortfolioID uint `json:"portfolio_id,omitempty"`
 	// 技术名称
 	Technology string `json:"technology,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PortfolioTechnologyQuery when eager-loading is set.
-	Edges                  PortfolioTechnologyEdges `json:"edges"`
-	portfolio_technologies *uint
-	selectValues           sql.SelectValues
+	Edges        PortfolioTechnologyEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // PortfolioTechnologyEdges holds the relations/edges for other nodes in the graph.
@@ -58,14 +59,12 @@ func (*PortfolioTechnology) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case portfoliotechnology.FieldID:
+		case portfoliotechnology.FieldID, portfoliotechnology.FieldPortfolioID:
 			values[i] = new(sql.NullInt64)
 		case portfoliotechnology.FieldTechnology:
 			values[i] = new(sql.NullString)
 		case portfoliotechnology.FieldDeletedAt, portfoliotechnology.FieldCreatedAt, portfoliotechnology.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
-		case portfoliotechnology.ForeignKeys[0]: // portfolio_technologies
-			values[i] = new(sql.NullInt64)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -106,18 +105,17 @@ func (pt *PortfolioTechnology) assignValues(columns []string, values []any) erro
 			} else if value.Valid {
 				pt.UpdatedAt = value.Time
 			}
+		case portfoliotechnology.FieldPortfolioID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field portfolio_id", values[i])
+			} else if value.Valid {
+				pt.PortfolioID = uint(value.Int64)
+			}
 		case portfoliotechnology.FieldTechnology:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field technology", values[i])
 			} else if value.Valid {
 				pt.Technology = value.String
-			}
-		case portfoliotechnology.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for edge-field portfolio_technologies", value)
-			} else if value.Valid {
-				pt.portfolio_technologies = new(uint)
-				*pt.portfolio_technologies = uint(value.Int64)
 			}
 		default:
 			pt.selectValues.Set(columns[i], values[i])
@@ -170,6 +168,9 @@ func (pt *PortfolioTechnology) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(pt.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("portfolio_id=")
+	builder.WriteString(fmt.Sprintf("%v", pt.PortfolioID))
 	builder.WriteString(", ")
 	builder.WriteString("technology=")
 	builder.WriteString(pt.Technology)

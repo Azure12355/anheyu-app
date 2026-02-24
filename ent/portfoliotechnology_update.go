@@ -56,6 +56,20 @@ func (ptu *PortfolioTechnologyUpdate) SetUpdatedAt(t time.Time) *PortfolioTechno
 	return ptu
 }
 
+// SetPortfolioID sets the "portfolio_id" field.
+func (ptu *PortfolioTechnologyUpdate) SetPortfolioID(u uint) *PortfolioTechnologyUpdate {
+	ptu.mutation.SetPortfolioID(u)
+	return ptu
+}
+
+// SetNillablePortfolioID sets the "portfolio_id" field if the given value is not nil.
+func (ptu *PortfolioTechnologyUpdate) SetNillablePortfolioID(u *uint) *PortfolioTechnologyUpdate {
+	if u != nil {
+		ptu.SetPortfolioID(*u)
+	}
+	return ptu
+}
+
 // SetTechnology sets the "technology" field.
 func (ptu *PortfolioTechnologyUpdate) SetTechnology(s string) *PortfolioTechnologyUpdate {
 	ptu.mutation.SetTechnology(s)
@@ -66,20 +80,6 @@ func (ptu *PortfolioTechnologyUpdate) SetTechnology(s string) *PortfolioTechnolo
 func (ptu *PortfolioTechnologyUpdate) SetNillableTechnology(s *string) *PortfolioTechnologyUpdate {
 	if s != nil {
 		ptu.SetTechnology(*s)
-	}
-	return ptu
-}
-
-// SetPortfolioID sets the "portfolio" edge to the Portfolio entity by ID.
-func (ptu *PortfolioTechnologyUpdate) SetPortfolioID(id uint) *PortfolioTechnologyUpdate {
-	ptu.mutation.SetPortfolioID(id)
-	return ptu
-}
-
-// SetNillablePortfolioID sets the "portfolio" edge to the Portfolio entity by ID if the given value is not nil.
-func (ptu *PortfolioTechnologyUpdate) SetNillablePortfolioID(id *uint) *PortfolioTechnologyUpdate {
-	if id != nil {
-		ptu = ptu.SetPortfolioID(*id)
 	}
 	return ptu
 }
@@ -148,6 +148,9 @@ func (ptu *PortfolioTechnologyUpdate) check() error {
 		if err := portfoliotechnology.TechnologyValidator(v); err != nil {
 			return &ValidationError{Name: "technology", err: fmt.Errorf(`ent: validator failed for field "PortfolioTechnology.technology": %w`, err)}
 		}
+	}
+	if ptu.mutation.PortfolioCleared() && len(ptu.mutation.PortfolioIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "PortfolioTechnology.portfolio"`)
 	}
 	return nil
 }
@@ -259,6 +262,20 @@ func (ptuo *PortfolioTechnologyUpdateOne) SetUpdatedAt(t time.Time) *PortfolioTe
 	return ptuo
 }
 
+// SetPortfolioID sets the "portfolio_id" field.
+func (ptuo *PortfolioTechnologyUpdateOne) SetPortfolioID(u uint) *PortfolioTechnologyUpdateOne {
+	ptuo.mutation.SetPortfolioID(u)
+	return ptuo
+}
+
+// SetNillablePortfolioID sets the "portfolio_id" field if the given value is not nil.
+func (ptuo *PortfolioTechnologyUpdateOne) SetNillablePortfolioID(u *uint) *PortfolioTechnologyUpdateOne {
+	if u != nil {
+		ptuo.SetPortfolioID(*u)
+	}
+	return ptuo
+}
+
 // SetTechnology sets the "technology" field.
 func (ptuo *PortfolioTechnologyUpdateOne) SetTechnology(s string) *PortfolioTechnologyUpdateOne {
 	ptuo.mutation.SetTechnology(s)
@@ -269,20 +286,6 @@ func (ptuo *PortfolioTechnologyUpdateOne) SetTechnology(s string) *PortfolioTech
 func (ptuo *PortfolioTechnologyUpdateOne) SetNillableTechnology(s *string) *PortfolioTechnologyUpdateOne {
 	if s != nil {
 		ptuo.SetTechnology(*s)
-	}
-	return ptuo
-}
-
-// SetPortfolioID sets the "portfolio" edge to the Portfolio entity by ID.
-func (ptuo *PortfolioTechnologyUpdateOne) SetPortfolioID(id uint) *PortfolioTechnologyUpdateOne {
-	ptuo.mutation.SetPortfolioID(id)
-	return ptuo
-}
-
-// SetNillablePortfolioID sets the "portfolio" edge to the Portfolio entity by ID if the given value is not nil.
-func (ptuo *PortfolioTechnologyUpdateOne) SetNillablePortfolioID(id *uint) *PortfolioTechnologyUpdateOne {
-	if id != nil {
-		ptuo = ptuo.SetPortfolioID(*id)
 	}
 	return ptuo
 }
@@ -364,6 +367,9 @@ func (ptuo *PortfolioTechnologyUpdateOne) check() error {
 		if err := portfoliotechnology.TechnologyValidator(v); err != nil {
 			return &ValidationError{Name: "technology", err: fmt.Errorf(`ent: validator failed for field "PortfolioTechnology.technology": %w`, err)}
 		}
+	}
+	if ptuo.mutation.PortfolioCleared() && len(ptuo.mutation.PortfolioIDs()) > 0 {
+		return errors.New(`ent: clearing a required unique edge "PortfolioTechnology.portfolio"`)
 	}
 	return nil
 }

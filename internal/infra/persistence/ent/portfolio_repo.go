@@ -8,9 +8,11 @@ package ent
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
+	"github.com/anzhiyu-c/anheyu-app/ent/portfoliotechnology"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/repository"
 	"github.com/anzhiyu-c/anheyu-app/pkg/idgen"
@@ -67,6 +69,13 @@ func (r *portfolioRepo) Create(ctx context.Context, req *model.CreatePortfolioRe
 		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
 
+	// 确保事务在发生错误时回滚
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
 	// 创建作品
 	p, err := tx.Portfolio.Create().
 		SetTitle(req.Title).
@@ -87,18 +96,28 @@ func (r *portfolioRepo) Create(ctx context.Context, req *model.CreatePortfolioRe
 		SetGalleryImages(req.GalleryImages).
 		Save(ctx)
 	if err != nil {
-		tx.Rollback()
 		return nil, fmt.Errorf("failed to create portfolio: %w", err)
 	}
 
-	// 创建技术栈关联
+	// 创建技术栈关联（去重处理）
+	techSet := make(map[string]bool)
 	for _, tech := range req.Technologies {
-		techEntity := tx.PortfolioTechnology.Create()
-		// 通过 edge 关联到 portfolio
-		_, err = techEntity.SetPortfolioID(p.ID).SetTechnology(tech).Save(ctx)
+		// 跳过空字符串
+		if tech == "" {
+			continue
+		}
+		// 去重：同一作品内避免重复技术
+		if techSet[tech] {
+			continue
+		}
+		techSet[tech] = true
+
+		_, err = tx.PortfolioTechnology.Create().
+			SetPortfolioID(p.ID).
+			SetTechnology(tech).
+			Save(ctx)
 		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf("failed to create technology: %w", err)
+			return nil, fmt.Errorf("failed to create technology '%s': %w", tech, err)
 		}
 	}
 
@@ -109,7 +128,10 @@ func (r *portfolioRepo) Create(ctx context.Context, req *model.CreatePortfolioRe
 	// 重新查询带关联的作品
 	p, err = r.client.Portfolio.Query().
 		Where(portfolio.ID(p.ID)).
-		WithTechnologies().
+		WithTechnologies(func(q *ent.PortfolioTechnologyQuery) {
+			// 按技术名称排序，保证结果稳定
+			q.Order(ent.Asc(portfoliotechnology.FieldTechnology))
+		}).
 		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query portfolio: %w", err)
@@ -127,7 +149,10 @@ func (r *portfolioRepo) GetByID(ctx context.Context, publicID string) (*model.Po
 
 	p, err := r.client.Portfolio.Query().
 		Where(portfolio.ID(id)).
-		WithTechnologies().
+		WithTechnologies(func(q *ent.PortfolioTechnologyQuery) {
+			// 按技术名称排序，保证结果稳定
+			q.Order(ent.Asc(portfoliotechnology.FieldTechnology))
+		}).
 		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("portfolio not found: %w", err)
@@ -148,6 +173,13 @@ func (r *portfolioRepo) Update(ctx context.Context, publicID string, req *model.
 	if err != nil {
 		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
+
+	// 确保事务在发生错误时回滚
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
 
 	// 构建更新器 - 使用 UpdateOneID 以便获取更新后的对象
 	update := tx.Portfolio.UpdateOneID(id)
@@ -203,7 +235,6 @@ func (r *portfolioRepo) Update(ctx context.Context, publicID string, req *model.
 
 	p, err := update.Save(ctx)
 	if err != nil {
-		tx.Rollback()
 		return nil, fmt.Errorf("failed to update portfolio: %w", err)
 	}
 
@@ -215,7 +246,6 @@ func (r *portfolioRepo) Update(ctx context.Context, publicID string, req *model.
 			QueryTechnologies().
 			All(ctx)
 		if err != nil {
-			tx.Rollback()
 			return nil, fmt.Errorf("failed to query current technologies: %w", err)
 		}
 
@@ -223,20 +253,29 @@ func (r *portfolioRepo) Update(ctx context.Context, publicID string, req *model.
 		for _, tech := range currentTechs {
 			err = tx.PortfolioTechnology.DeleteOne(tech).Exec(ctx)
 			if err != nil {
-				tx.Rollback()
 				return nil, fmt.Errorf("failed to delete old technology: %w", err)
 			}
 		}
 
-		// 创建新的关联
+		// 创建新的关联（去重处理）
+		techSet := make(map[string]bool)
 		for _, techName := range *req.Technologies {
+			// 跳过空字符串
+			if techName == "" {
+				continue
+			}
+			// 去重：同一作品内避免重复技术
+			if techSet[techName] {
+				continue
+			}
+			techSet[techName] = true
+
 			_, err = tx.PortfolioTechnology.Create().
 				SetPortfolioID(p.ID).
 				SetTechnology(techName).
 				Save(ctx)
 			if err != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("failed to create technology: %w", err)
+				return nil, fmt.Errorf("failed to create technology '%s': %w", techName, err)
 			}
 		}
 	}
@@ -248,7 +287,10 @@ func (r *portfolioRepo) Update(ctx context.Context, publicID string, req *model.
 	// 重新查询
 	p, err = r.client.Portfolio.Query().
 		Where(portfolio.ID(p.ID)).
-		WithTechnologies().
+		WithTechnologies(func(q *ent.PortfolioTechnologyQuery) {
+			// 按技术名称排序，保证结果稳定
+			q.Order(ent.Asc(portfoliotechnology.FieldTechnology))
+		}).
 		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query portfolio: %w", err)
@@ -276,24 +318,25 @@ func (r *portfolioRepo) Delete(ctx context.Context, publicID string) error {
 
 // List 获取作品列表
 func (r *portfolioRepo) List(ctx context.Context, options *model.PortfolioListOptions) ([]*model.Portfolio, int, error) {
-	query := r.client.Portfolio.Query().WithTechnologies()
+	// 先构建筛选查询（不加载 technologies，用于计数）
+	countQuery := r.client.Portfolio.Query()
 
 	// 筛选条件
 	if options.ProjectType != "" {
-		query = query.Where(portfolio.ProjectTypeEQ(portfolio.ProjectType(options.ProjectType)))
+		countQuery = countQuery.Where(portfolio.ProjectTypeEQ(portfolio.ProjectType(options.ProjectType)))
 	}
 	if options.Status != "" {
-		query = query.Where(portfolio.StatusEQ(portfolio.Status(options.Status)))
+		countQuery = countQuery.Where(portfolio.StatusEQ(portfolio.Status(options.Status)))
 	}
 	if options.Keyword != "" {
-		query = query.Where(portfolio.TitleContains(options.Keyword))
+		countQuery = countQuery.Where(portfolio.TitleContains(options.Keyword))
 	}
 	if options.Featured != nil {
-		query = query.Where(portfolio.Featured(*options.Featured))
+		countQuery = countQuery.Where(portfolio.Featured(*options.Featured))
 	}
 
 	// 获取总数
-	total, err := query.Count(ctx)
+	total, err := countQuery.Count(ctx)
 	if err != nil {
 		return nil, 0, fmt.Errorf("failed to count portfolios: %w", err)
 	}
@@ -306,6 +349,30 @@ func (r *portfolioRepo) List(ctx context.Context, options *model.PortfolioListOp
 	pageSize := options.PageSize
 	if pageSize < 1 {
 		pageSize = 12
+	}
+	// 限制最大每页数量，防止恶意请求
+	if pageSize > 100 {
+		pageSize = 100
+	}
+
+	// 构建数据查询（加载 technologies）
+	query := r.client.Portfolio.Query().WithTechnologies(func(q *ent.PortfolioTechnologyQuery) {
+		// 按技术名称排序，保证结果稳定
+		q.Order(ent.Asc(portfoliotechnology.FieldTechnology))
+	})
+
+	// 应用相同的筛选条件
+	if options.ProjectType != "" {
+		query = query.Where(portfolio.ProjectTypeEQ(portfolio.ProjectType(options.ProjectType)))
+	}
+	if options.Status != "" {
+		query = query.Where(portfolio.StatusEQ(portfolio.Status(options.Status)))
+	}
+	if options.Keyword != "" {
+		query = query.Where(portfolio.TitleContains(options.Keyword))
+	}
+	if options.Featured != nil {
+		query = query.Where(portfolio.Featured(*options.Featured))
 	}
 
 	portfolios, err := query.
@@ -353,12 +420,26 @@ func (r *portfolioRepo) GetStats(ctx context.Context) (*model.PortfolioStatsResp
 		}
 	}
 
-	// 技术栈 TOP 10
+	// 技术栈 TOP 10 - 按使用次数降序排列
 	for tech, count := range techCount {
 		stats.TopTechnologies = append(stats.TopTechnologies, model.TechnologyCount{
 			Name:  tech,
 			Count: count,
 		})
+	}
+
+	// 按使用次数降序排序
+	sort.Slice(stats.TopTechnologies, func(i, j int) bool {
+		if stats.TopTechnologies[i].Count == stats.TopTechnologies[j].Count {
+			// 次数相同时按名称排序，保证结果稳定
+			return stats.TopTechnologies[i].Name < stats.TopTechnologies[j].Name
+		}
+		return stats.TopTechnologies[i].Count > stats.TopTechnologies[j].Count
+	})
+
+	// 只返回 TOP 10
+	if len(stats.TopTechnologies) > 10 {
+		stats.TopTechnologies = stats.TopTechnologies[:10]
 	}
 
 	return stats, nil

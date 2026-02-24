@@ -70,6 +70,11 @@ func UpdatedAt(v time.Time) predicate.PortfolioTechnology {
 	return predicate.PortfolioTechnology(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// PortfolioID applies equality check predicate on the "portfolio_id" field. It's identical to PortfolioIDEQ.
+func PortfolioID(v uint) predicate.PortfolioTechnology {
+	return predicate.PortfolioTechnology(sql.FieldEQ(FieldPortfolioID, v))
+}
+
 // Technology applies equality check predicate on the "technology" field. It's identical to TechnologyEQ.
 func Technology(v string) predicate.PortfolioTechnology {
 	return predicate.PortfolioTechnology(sql.FieldEQ(FieldTechnology, v))
@@ -203,6 +208,26 @@ func UpdatedAtLT(v time.Time) predicate.PortfolioTechnology {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.PortfolioTechnology {
 	return predicate.PortfolioTechnology(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// PortfolioIDEQ applies the EQ predicate on the "portfolio_id" field.
+func PortfolioIDEQ(v uint) predicate.PortfolioTechnology {
+	return predicate.PortfolioTechnology(sql.FieldEQ(FieldPortfolioID, v))
+}
+
+// PortfolioIDNEQ applies the NEQ predicate on the "portfolio_id" field.
+func PortfolioIDNEQ(v uint) predicate.PortfolioTechnology {
+	return predicate.PortfolioTechnology(sql.FieldNEQ(FieldPortfolioID, v))
+}
+
+// PortfolioIDIn applies the In predicate on the "portfolio_id" field.
+func PortfolioIDIn(vs ...uint) predicate.PortfolioTechnology {
+	return predicate.PortfolioTechnology(sql.FieldIn(FieldPortfolioID, vs...))
+}
+
+// PortfolioIDNotIn applies the NotIn predicate on the "portfolio_id" field.
+func PortfolioIDNotIn(vs ...uint) predicate.PortfolioTechnology {
+	return predicate.PortfolioTechnology(sql.FieldNotIn(FieldPortfolioID, vs...))
 }
 
 // TechnologyEQ applies the EQ predicate on the "technology" field.

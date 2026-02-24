@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/anzhiyu-c/anheyu-app/ent"
 	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 	portfoliosvc "github.com/anzhiyu-c/anheyu-app/pkg/service/portfolio"
 )
@@ -80,9 +81,19 @@ func (h *PublicHandler) GetByID(c *gin.Context) {
 
 	portfolio, err := h.svc.GetByID(c.Request.Context(), id)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"code":    404,
-			"message": "作品不存在",
+		// 判断是否为 NotFound 错误
+		if ent.IsNotFound(err) || ent.IsNotFound(err) {
+			c.JSON(http.StatusNotFound, gin.H{
+				"code":    404,
+				"message": "作品不存在",
+				"data":    nil,
+			})
+			return
+		}
+		// 其他错误返回 500
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "获取作品失败",
 			"data":    nil,
 		})
 		return

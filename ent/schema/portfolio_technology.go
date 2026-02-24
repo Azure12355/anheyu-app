@@ -55,19 +55,27 @@ func (PortfolioTechnology) Fields() []ent.Field {
 			UpdateDefault(time.Now).
 			Comment("更新时间"),
 
+		// 外键字段 - 关联到 Portfolio
+		field.Uint("portfolio_id").
+			Comment("所属作品ID"),
+
 		field.String("technology").
 			Comment("技术名称").
 			NotEmpty().
-			MaxLen(100).
-			Unique(),
+			MaxLen(100),
+		// 移除 Unique() 约束，允许不同作品使用相同技术
 	}
 }
 
 // Edges of the PortfolioTechnology.
 func (PortfolioTechnology) Edges() []ent.Edge {
 	return []ent.Edge{
+		// 从 PortfolioTechnology 指向 Portfolio 的反向边
+		// Required() 表示这条记录必须关联一个 Portfolio
 		edge.From("portfolio", Portfolio.Type).
 			Ref("technologies").
-			Unique(),
+			Field("portfolio_id").
+			Unique().
+			Required(),
 	}
 }

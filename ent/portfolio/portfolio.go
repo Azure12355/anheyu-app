@@ -64,7 +64,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "portfoliotechnology" package.
 	TechnologiesInverseTable = "portfolio_technologies"
 	// TechnologiesColumn is the table column denoting the technologies relation/edge.
-	TechnologiesColumn = "portfolio_technologies"
+	TechnologiesColumn = "portfolio_id"
 )
 
 // Columns holds all SQL columns for portfolio fields.

@@ -65,6 +65,12 @@ func (ptc *PortfolioTechnologyCreate) SetNillableUpdatedAt(t *time.Time) *Portfo
 	return ptc
 }
 
+// SetPortfolioID sets the "portfolio_id" field.
+func (ptc *PortfolioTechnologyCreate) SetPortfolioID(u uint) *PortfolioTechnologyCreate {
+	ptc.mutation.SetPortfolioID(u)
+	return ptc
+}
+
 // SetTechnology sets the "technology" field.
 func (ptc *PortfolioTechnologyCreate) SetTechnology(s string) *PortfolioTechnologyCreate {
 	ptc.mutation.SetTechnology(s)
@@ -74,20 +80,6 @@ func (ptc *PortfolioTechnologyCreate) SetTechnology(s string) *PortfolioTechnolo
 // SetID sets the "id" field.
 func (ptc *PortfolioTechnologyCreate) SetID(u uint) *PortfolioTechnologyCreate {
 	ptc.mutation.SetID(u)
-	return ptc
-}
-
-// SetPortfolioID sets the "portfolio" edge to the Portfolio entity by ID.
-func (ptc *PortfolioTechnologyCreate) SetPortfolioID(id uint) *PortfolioTechnologyCreate {
-	ptc.mutation.SetPortfolioID(id)
-	return ptc
-}
-
-// SetNillablePortfolioID sets the "portfolio" edge to the Portfolio entity by ID if the given value is not nil.
-func (ptc *PortfolioTechnologyCreate) SetNillablePortfolioID(id *uint) *PortfolioTechnologyCreate {
-	if id != nil {
-		ptc = ptc.SetPortfolioID(*id)
-	}
 	return ptc
 }
 
@@ -158,6 +150,9 @@ func (ptc *PortfolioTechnologyCreate) check() error {
 	if _, ok := ptc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PortfolioTechnology.updated_at"`)}
 	}
+	if _, ok := ptc.mutation.PortfolioID(); !ok {
+		return &ValidationError{Name: "portfolio_id", err: errors.New(`ent: missing required field "PortfolioTechnology.portfolio_id"`)}
+	}
 	if _, ok := ptc.mutation.Technology(); !ok {
 		return &ValidationError{Name: "technology", err: errors.New(`ent: missing required field "PortfolioTechnology.technology"`)}
 	}
@@ -165,6 +160,9 @@ func (ptc *PortfolioTechnologyCreate) check() error {
 		if err := portfoliotechnology.TechnologyValidator(v); err != nil {
 			return &ValidationError{Name: "technology", err: fmt.Errorf(`ent: validator failed for field "PortfolioTechnology.technology": %w`, err)}
 		}
+	}
+	if len(ptc.mutation.PortfolioIDs()) == 0 {
+		return &ValidationError{Name: "portfolio", err: errors.New(`ent: missing required edge "PortfolioTechnology.portfolio"`)}
 	}
 	return nil
 }
@@ -229,7 +227,7 @@ func (ptc *PortfolioTechnologyCreate) createSpec() (*PortfolioTechnology, *sqlgr
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.portfolio_technologies = &nodes[0]
+		_node.PortfolioID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -311,6 +309,18 @@ func (u *PortfolioTechnologyUpsert) SetUpdatedAt(v time.Time) *PortfolioTechnolo
 // UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
 func (u *PortfolioTechnologyUpsert) UpdateUpdatedAt() *PortfolioTechnologyUpsert {
 	u.SetExcluded(portfoliotechnology.FieldUpdatedAt)
+	return u
+}
+
+// SetPortfolioID sets the "portfolio_id" field.
+func (u *PortfolioTechnologyUpsert) SetPortfolioID(v uint) *PortfolioTechnologyUpsert {
+	u.Set(portfoliotechnology.FieldPortfolioID, v)
+	return u
+}
+
+// UpdatePortfolioID sets the "portfolio_id" field to the value that was provided on create.
+func (u *PortfolioTechnologyUpsert) UpdatePortfolioID() *PortfolioTechnologyUpsert {
+	u.SetExcluded(portfoliotechnology.FieldPortfolioID)
 	return u
 }
 
@@ -409,6 +419,20 @@ func (u *PortfolioTechnologyUpsertOne) SetUpdatedAt(v time.Time) *PortfolioTechn
 func (u *PortfolioTechnologyUpsertOne) UpdateUpdatedAt() *PortfolioTechnologyUpsertOne {
 	return u.Update(func(s *PortfolioTechnologyUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetPortfolioID sets the "portfolio_id" field.
+func (u *PortfolioTechnologyUpsertOne) SetPortfolioID(v uint) *PortfolioTechnologyUpsertOne {
+	return u.Update(func(s *PortfolioTechnologyUpsert) {
+		s.SetPortfolioID(v)
+	})
+}
+
+// UpdatePortfolioID sets the "portfolio_id" field to the value that was provided on create.
+func (u *PortfolioTechnologyUpsertOne) UpdatePortfolioID() *PortfolioTechnologyUpsertOne {
+	return u.Update(func(s *PortfolioTechnologyUpsert) {
+		s.UpdatePortfolioID()
 	})
 }
 
@@ -675,6 +699,20 @@ func (u *PortfolioTechnologyUpsertBulk) SetUpdatedAt(v time.Time) *PortfolioTech
 func (u *PortfolioTechnologyUpsertBulk) UpdateUpdatedAt() *PortfolioTechnologyUpsertBulk {
 	return u.Update(func(s *PortfolioTechnologyUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetPortfolioID sets the "portfolio_id" field.
+func (u *PortfolioTechnologyUpsertBulk) SetPortfolioID(v uint) *PortfolioTechnologyUpsertBulk {
+	return u.Update(func(s *PortfolioTechnologyUpsert) {
+		s.SetPortfolioID(v)
+	})
+}
+
+// UpdatePortfolioID sets the "portfolio_id" field to the value that was provided on create.
+func (u *PortfolioTechnologyUpsertBulk) UpdatePortfolioID() *PortfolioTechnologyUpsertBulk {
+	return u.Update(func(s *PortfolioTechnologyUpsert) {
+		s.UpdatePortfolioID()
 	})
 }
 

@@ -602,8 +602,8 @@ var (
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "created_at", Type: field.TypeTime, Comment: "创建时间"},
 		{Name: "updated_at", Type: field.TypeTime, Comment: "更新时间"},
-		{Name: "technology", Type: field.TypeString, Unique: true, Size: 100, Comment: "技术名称"},
-		{Name: "portfolio_technologies", Type: field.TypeUint, Nullable: true},
+		{Name: "technology", Type: field.TypeString, Size: 100, Comment: "技术名称"},
+		{Name: "portfolio_id", Type: field.TypeUint, Comment: "所属作品ID"},
 	}
 	// PortfolioTechnologiesTable holds the schema information for the "portfolio_technologies" table.
 	PortfolioTechnologiesTable = &schema.Table{
@@ -616,7 +616,7 @@ var (
 				Symbol:     "portfolio_technologies_portfolios_technologies",
 				Columns:    []*schema.Column{PortfolioTechnologiesColumns[5]},
 				RefColumns: []*schema.Column{PortfoliosColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
