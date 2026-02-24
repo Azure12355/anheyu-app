@@ -44,6 +44,7 @@ func (r *portfolioRepo) toModel(p *ent.Portfolio) *model.Portfolio {
 		CoverURL:      p.CoverURL,
 		ProjectType:   string(p.ProjectType),
 		Status:        string(p.Status),
+		Tier:          string(p.Tier),
 		Technologies:  technologies,
 		DemoURL:       p.DemoURL,
 		GithubURL:     p.GithubURL,
@@ -83,6 +84,7 @@ func (r *portfolioRepo) Create(ctx context.Context, req *model.CreatePortfolioRe
 		SetCoverURL(req.CoverURL).
 		SetProjectType(portfolio.ProjectType(req.ProjectType)).
 		SetStatus(portfolio.Status(req.Status)).
+		SetTier(portfolio.Tier(req.Tier)).
 		SetDemoURL(req.DemoURL).
 		SetGithubURL(req.GithubURL).
 		SetFeatured(req.Featured).
@@ -198,6 +200,9 @@ func (r *portfolioRepo) Update(ctx context.Context, publicID string, req *model.
 	}
 	if req.Status != nil {
 		update.SetStatus(portfolio.Status(*req.Status))
+	}
+	if req.Tier != nil {
+		update.SetTier(portfolio.Tier(*req.Tier))
 	}
 	if req.DemoURL != nil {
 		update.SetDemoURL(*req.DemoURL)
@@ -334,6 +339,9 @@ func (r *portfolioRepo) List(ctx context.Context, options *model.PortfolioListOp
 	if options.Featured != nil {
 		countQuery = countQuery.Where(portfolio.Featured(*options.Featured))
 	}
+	if options.Tier != "" {
+		countQuery = countQuery.Where(portfolio.TierEQ(portfolio.Tier(options.Tier)))
+	}
 
 	// 获取总数
 	total, err := countQuery.Count(ctx)
@@ -373,6 +381,9 @@ func (r *portfolioRepo) List(ctx context.Context, options *model.PortfolioListOp
 	}
 	if options.Featured != nil {
 		query = query.Where(portfolio.Featured(*options.Featured))
+	}
+	if options.Tier != "" {
+		query = query.Where(portfolio.TierEQ(portfolio.Tier(options.Tier)))
 	}
 
 	portfolios, err := query.
