@@ -32,6 +32,9 @@ func (s *serviceImpl) Create(ctx context.Context, req *model.CreatePortfolioRequ
 	if req.ProjectType == "" {
 		req.ProjectType = "other"
 	}
+	if req.Tier == "" {
+		req.Tier = "normal"
+	}
 	if req.Technologies == nil {
 		req.Technologies = []string{}
 	}
