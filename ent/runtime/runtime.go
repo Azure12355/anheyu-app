@@ -714,31 +714,31 @@ func init() {
 		}
 	}()
 	// portfolioDescDemoURL is the schema descriptor for demo_url field.
-	portfolioDescDemoURL := portfolioFields[8].Descriptor()
+	portfolioDescDemoURL := portfolioFields[9].Descriptor()
 	// portfolio.DemoURLValidator is a validator for the "demo_url" field. It is called by the builders before save.
 	portfolio.DemoURLValidator = portfolioDescDemoURL.Validators[0].(func(string) error)
 	// portfolioDescGithubURL is the schema descriptor for github_url field.
-	portfolioDescGithubURL := portfolioFields[9].Descriptor()
+	portfolioDescGithubURL := portfolioFields[10].Descriptor()
 	// portfolio.GithubURLValidator is a validator for the "github_url" field. It is called by the builders before save.
 	portfolio.GithubURLValidator = portfolioDescGithubURL.Validators[0].(func(string) error)
 	// portfolioDescFeatured is the schema descriptor for featured field.
-	portfolioDescFeatured := portfolioFields[10].Descriptor()
+	portfolioDescFeatured := portfolioFields[11].Descriptor()
 	// portfolio.DefaultFeatured holds the default value on creation for the featured field.
 	portfolio.DefaultFeatured = portfolioDescFeatured.Default.(bool)
 	// portfolioDescSortOrder is the schema descriptor for sort_order field.
-	portfolioDescSortOrder := portfolioFields[11].Descriptor()
+	portfolioDescSortOrder := portfolioFields[12].Descriptor()
 	// portfolio.DefaultSortOrder holds the default value on creation for the sort_order field.
 	portfolio.DefaultSortOrder = portfolioDescSortOrder.Default.(int)
 	// portfolioDescRole is the schema descriptor for role field.
-	portfolioDescRole := portfolioFields[13].Descriptor()
+	portfolioDescRole := portfolioFields[14].Descriptor()
 	// portfolio.RoleValidator is a validator for the "role" field. It is called by the builders before save.
 	portfolio.RoleValidator = portfolioDescRole.Validators[0].(func(string) error)
 	// portfolioDescDuration is the schema descriptor for duration field.
-	portfolioDescDuration := portfolioFields[14].Descriptor()
+	portfolioDescDuration := portfolioFields[15].Descriptor()
 	// portfolio.DurationValidator is a validator for the "duration" field. It is called by the builders before save.
 	portfolio.DurationValidator = portfolioDescDuration.Validators[0].(func(string) error)
 	// portfolioDescClient is the schema descriptor for client field.
-	portfolioDescClient := portfolioFields[15].Descriptor()
+	portfolioDescClient := portfolioFields[16].Descriptor()
 	// portfolio.ClientValidator is a validator for the "client" field. It is called by the builders before save.
 	portfolio.ClientValidator = portfolioDescClient.Validators[0].(func(string) error)
 	portfoliotechnologyMixin := schema.PortfolioTechnology{}.Mixin()

@@ -30,6 +30,8 @@ type Portfolio struct {
 	Description string `json:"description,omitempty"`
 	// 封面图URL
 	CoverURL string `json:"cover_url,omitempty"`
+	// 项目层级: normal-普通, recommended-推荐, featured-精选
+	Tier portfolio.Tier `json:"tier,omitempty"`
 	// 项目类型
 	ProjectType portfolio.ProjectType `json:"project_type,omitempty"`
 	// 项目状态
@@ -91,7 +93,7 @@ func (*Portfolio) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case portfolio.FieldID, portfolio.FieldSortOrder:
 			values[i] = new(sql.NullInt64)
-		case portfolio.FieldTitle, portfolio.FieldDescription, portfolio.FieldCoverURL, portfolio.FieldProjectType, portfolio.FieldStatus, portfolio.FieldDemoURL, portfolio.FieldGithubURL, portfolio.FieldOverview, portfolio.FieldRole, portfolio.FieldDuration, portfolio.FieldClient, portfolio.FieldChallenge, portfolio.FieldSolution:
+		case portfolio.FieldTitle, portfolio.FieldDescription, portfolio.FieldCoverURL, portfolio.FieldTier, portfolio.FieldProjectType, portfolio.FieldStatus, portfolio.FieldDemoURL, portfolio.FieldGithubURL, portfolio.FieldOverview, portfolio.FieldRole, portfolio.FieldDuration, portfolio.FieldClient, portfolio.FieldChallenge, portfolio.FieldSolution:
 			values[i] = new(sql.NullString)
 		case portfolio.FieldDeletedAt, portfolio.FieldCreatedAt, portfolio.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -152,6 +154,12 @@ func (po *Portfolio) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field cover_url", values[i])
 			} else if value.Valid {
 				po.CoverURL = value.String
+			}
+		case portfolio.FieldTier:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field tier", values[i])
+			} else if value.Valid {
+				po.Tier = portfolio.Tier(value.String)
 			}
 		case portfolio.FieldProjectType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -293,6 +301,9 @@ func (po *Portfolio) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("cover_url=")
 	builder.WriteString(po.CoverURL)
+	builder.WriteString(", ")
+	builder.WriteString("tier=")
+	builder.WriteString(fmt.Sprintf("%v", po.Tier))
 	builder.WriteString(", ")
 	builder.WriteString("project_type=")
 	builder.WriteString(fmt.Sprintf("%v", po.ProjectType))

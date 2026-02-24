@@ -28,6 +28,8 @@ const (
 	FieldDescription = "description"
 	// FieldCoverURL holds the string denoting the cover_url field in the database.
 	FieldCoverURL = "cover_url"
+	// FieldTier holds the string denoting the tier field in the database.
+	FieldTier = "tier"
 	// FieldProjectType holds the string denoting the project_type field in the database.
 	FieldProjectType = "project_type"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -76,6 +78,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldDescription,
 	FieldCoverURL,
+	FieldTier,
 	FieldProjectType,
 	FieldStatus,
 	FieldDemoURL,
@@ -131,6 +134,33 @@ var (
 	// ClientValidator is a validator for the "client" field. It is called by the builders before save.
 	ClientValidator func(string) error
 )
+
+// Tier defines the type for the "tier" enum field.
+type Tier string
+
+// TierNormal is the default value of the Tier enum.
+const DefaultTier = TierNormal
+
+// Tier values.
+const (
+	TierNormal      Tier = "normal"
+	TierRecommended Tier = "recommended"
+	TierFeatured    Tier = "featured"
+)
+
+func (t Tier) String() string {
+	return string(t)
+}
+
+// TierValidator is a validator for the "tier" field enum values. It is called by the builders before save.
+func TierValidator(t Tier) error {
+	switch t {
+	case TierNormal, TierRecommended, TierFeatured:
+		return nil
+	default:
+		return fmt.Errorf("portfolio: invalid enum value for tier field: %q", t)
+	}
+}
 
 // ProjectType defines the type for the "project_type" enum field.
 type ProjectType string
@@ -231,6 +261,11 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 // ByCoverURL orders the results by the cover_url field.
 func ByCoverURL(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCoverURL, opts...).ToFunc()
+}
+
+// ByTier orders the results by the tier field.
+func ByTier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTier, opts...).ToFunc()
 }
 
 // ByProjectType orders the results by the project_type field.

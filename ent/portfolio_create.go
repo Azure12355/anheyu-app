@@ -99,6 +99,20 @@ func (pc *PortfolioCreate) SetNillableCoverURL(s *string) *PortfolioCreate {
 	return pc
 }
 
+// SetTier sets the "tier" field.
+func (pc *PortfolioCreate) SetTier(po portfolio.Tier) *PortfolioCreate {
+	pc.mutation.SetTier(po)
+	return pc
+}
+
+// SetNillableTier sets the "tier" field if the given value is not nil.
+func (pc *PortfolioCreate) SetNillableTier(po *portfolio.Tier) *PortfolioCreate {
+	if po != nil {
+		pc.SetTier(*po)
+	}
+	return pc
+}
+
 // SetProjectType sets the "project_type" field.
 func (pc *PortfolioCreate) SetProjectType(pt portfolio.ProjectType) *PortfolioCreate {
 	pc.mutation.SetProjectType(pt)
@@ -345,6 +359,10 @@ func (pc *PortfolioCreate) defaults() error {
 		v := portfolio.DefaultUpdatedAt()
 		pc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := pc.mutation.Tier(); !ok {
+		v := portfolio.DefaultTier
+		pc.mutation.SetTier(v)
+	}
 	if _, ok := pc.mutation.ProjectType(); !ok {
 		v := portfolio.DefaultProjectType
 		pc.mutation.SetProjectType(v)
@@ -378,6 +396,14 @@ func (pc *PortfolioCreate) check() error {
 	if v, ok := pc.mutation.Title(); ok {
 		if err := portfolio.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Portfolio.title": %w`, err)}
+		}
+	}
+	if _, ok := pc.mutation.Tier(); !ok {
+		return &ValidationError{Name: "tier", err: errors.New(`ent: missing required field "Portfolio.tier"`)}
+	}
+	if v, ok := pc.mutation.Tier(); ok {
+		if err := portfolio.TierValidator(v); err != nil {
+			return &ValidationError{Name: "tier", err: fmt.Errorf(`ent: validator failed for field "Portfolio.tier": %w`, err)}
 		}
 	}
 	if _, ok := pc.mutation.ProjectType(); !ok {
@@ -483,6 +509,10 @@ func (pc *PortfolioCreate) createSpec() (*Portfolio, *sqlgraph.CreateSpec) {
 	if value, ok := pc.mutation.CoverURL(); ok {
 		_spec.SetField(portfolio.FieldCoverURL, field.TypeString, value)
 		_node.CoverURL = value
+	}
+	if value, ok := pc.mutation.Tier(); ok {
+		_spec.SetField(portfolio.FieldTier, field.TypeEnum, value)
+		_node.Tier = value
 	}
 	if value, ok := pc.mutation.ProjectType(); ok {
 		_spec.SetField(portfolio.FieldProjectType, field.TypeEnum, value)
@@ -679,6 +709,18 @@ func (u *PortfolioUpsert) UpdateCoverURL() *PortfolioUpsert {
 // ClearCoverURL clears the value of the "cover_url" field.
 func (u *PortfolioUpsert) ClearCoverURL() *PortfolioUpsert {
 	u.SetNull(portfolio.FieldCoverURL)
+	return u
+}
+
+// SetTier sets the "tier" field.
+func (u *PortfolioUpsert) SetTier(v portfolio.Tier) *PortfolioUpsert {
+	u.Set(portfolio.FieldTier, v)
+	return u
+}
+
+// UpdateTier sets the "tier" field to the value that was provided on create.
+func (u *PortfolioUpsert) UpdateTier() *PortfolioUpsert {
+	u.SetExcluded(portfolio.FieldTier)
 	return u
 }
 
@@ -1037,6 +1079,20 @@ func (u *PortfolioUpsertOne) UpdateCoverURL() *PortfolioUpsertOne {
 func (u *PortfolioUpsertOne) ClearCoverURL() *PortfolioUpsertOne {
 	return u.Update(func(s *PortfolioUpsert) {
 		s.ClearCoverURL()
+	})
+}
+
+// SetTier sets the "tier" field.
+func (u *PortfolioUpsertOne) SetTier(v portfolio.Tier) *PortfolioUpsertOne {
+	return u.Update(func(s *PortfolioUpsert) {
+		s.SetTier(v)
+	})
+}
+
+// UpdateTier sets the "tier" field to the value that was provided on create.
+func (u *PortfolioUpsertOne) UpdateTier() *PortfolioUpsertOne {
+	return u.Update(func(s *PortfolioUpsert) {
+		s.UpdateTier()
 	})
 }
 
@@ -1597,6 +1653,20 @@ func (u *PortfolioUpsertBulk) UpdateCoverURL() *PortfolioUpsertBulk {
 func (u *PortfolioUpsertBulk) ClearCoverURL() *PortfolioUpsertBulk {
 	return u.Update(func(s *PortfolioUpsert) {
 		s.ClearCoverURL()
+	})
+}
+
+// SetTier sets the "tier" field.
+func (u *PortfolioUpsertBulk) SetTier(v portfolio.Tier) *PortfolioUpsertBulk {
+	return u.Update(func(s *PortfolioUpsert) {
+		s.SetTier(v)
+	})
+}
+
+// UpdateTier sets the "tier" field to the value that was provided on create.
+func (u *PortfolioUpsertBulk) UpdateTier() *PortfolioUpsertBulk {
+	return u.Update(func(s *PortfolioUpsert) {
+		s.UpdateTier()
 	})
 }
 

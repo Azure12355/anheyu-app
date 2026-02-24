@@ -66,6 +66,12 @@ func (Portfolio) Fields() []ent.Field {
 			Comment("封面图URL").
 			Optional(),
 
+		// --- 层级与展示 ---
+		field.Enum("tier").
+			Values("normal", "recommended", "featured").
+			Comment("项目层级: normal-普通, recommended-推荐, featured-精选").
+			Default("normal"),
+
 		// --- 类型与状态 ---
 		field.Enum("project_type").
 			Values(
@@ -152,6 +158,9 @@ func (Portfolio) Indexes() []ent.Index {
 
 		// 精选查询：按精选状态和状态筛选
 		index.Fields("featured", "status"),
+
+		// 层级查询：按层级和状态筛选
+		index.Fields("tier", "status"),
 
 		// 排序查询：按排序权重排序
 		index.Fields("sort_order"),

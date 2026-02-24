@@ -20190,6 +20190,7 @@ type PortfolioMutation struct {
 	title                *string
 	description          *string
 	cover_url            *string
+	tier                 *portfolio.Tier
 	project_type         *portfolio.ProjectType
 	status               *portfolio.Status
 	demo_url             *string
@@ -20571,6 +20572,42 @@ func (m *PortfolioMutation) CoverURLCleared() bool {
 func (m *PortfolioMutation) ResetCoverURL() {
 	m.cover_url = nil
 	delete(m.clearedFields, portfolio.FieldCoverURL)
+}
+
+// SetTier sets the "tier" field.
+func (m *PortfolioMutation) SetTier(po portfolio.Tier) {
+	m.tier = &po
+}
+
+// Tier returns the value of the "tier" field in the mutation.
+func (m *PortfolioMutation) Tier() (r portfolio.Tier, exists bool) {
+	v := m.tier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTier returns the old "tier" field's value of the Portfolio entity.
+// If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PortfolioMutation) OldTier(ctx context.Context) (v portfolio.Tier, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTier: %w", err)
+	}
+	return oldValue.Tier, nil
+}
+
+// ResetTier resets all changes to the "tier" field.
+func (m *PortfolioMutation) ResetTier() {
+	m.tier = nil
 }
 
 // SetProjectType sets the "project_type" field.
@@ -21282,7 +21319,7 @@ func (m *PortfolioMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PortfolioMutation) Fields() []string {
-	fields := make([]string, 0, 19)
+	fields := make([]string, 0, 20)
 	if m.deleted_at != nil {
 		fields = append(fields, portfolio.FieldDeletedAt)
 	}
@@ -21300,6 +21337,9 @@ func (m *PortfolioMutation) Fields() []string {
 	}
 	if m.cover_url != nil {
 		fields = append(fields, portfolio.FieldCoverURL)
+	}
+	if m.tier != nil {
+		fields = append(fields, portfolio.FieldTier)
 	}
 	if m.project_type != nil {
 		fields = append(fields, portfolio.FieldProjectType)
@@ -21360,6 +21400,8 @@ func (m *PortfolioMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case portfolio.FieldCoverURL:
 		return m.CoverURL()
+	case portfolio.FieldTier:
+		return m.Tier()
 	case portfolio.FieldProjectType:
 		return m.ProjectType()
 	case portfolio.FieldStatus:
@@ -21407,6 +21449,8 @@ func (m *PortfolioMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldDescription(ctx)
 	case portfolio.FieldCoverURL:
 		return m.OldCoverURL(ctx)
+	case portfolio.FieldTier:
+		return m.OldTier(ctx)
 	case portfolio.FieldProjectType:
 		return m.OldProjectType(ctx)
 	case portfolio.FieldStatus:
@@ -21483,6 +21527,13 @@ func (m *PortfolioMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCoverURL(v)
+		return nil
+	case portfolio.FieldTier:
+		v, ok := value.(portfolio.Tier)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTier(v)
 		return nil
 	case portfolio.FieldProjectType:
 		v, ok := value.(portfolio.ProjectType)
@@ -21731,6 +21782,9 @@ func (m *PortfolioMutation) ResetField(name string) error {
 		return nil
 	case portfolio.FieldCoverURL:
 		m.ResetCoverURL()
+		return nil
+	case portfolio.FieldTier:
+		m.ResetTier()
 		return nil
 	case portfolio.FieldProjectType:
 		m.ResetProjectType()

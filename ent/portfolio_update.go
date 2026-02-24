@@ -111,6 +111,20 @@ func (pu *PortfolioUpdate) ClearCoverURL() *PortfolioUpdate {
 	return pu
 }
 
+// SetTier sets the "tier" field.
+func (pu *PortfolioUpdate) SetTier(po portfolio.Tier) *PortfolioUpdate {
+	pu.mutation.SetTier(po)
+	return pu
+}
+
+// SetNillableTier sets the "tier" field if the given value is not nil.
+func (pu *PortfolioUpdate) SetNillableTier(po *portfolio.Tier) *PortfolioUpdate {
+	if po != nil {
+		pu.SetTier(*po)
+	}
+	return pu
+}
+
 // SetProjectType sets the "project_type" field.
 func (pu *PortfolioUpdate) SetProjectType(pt portfolio.ProjectType) *PortfolioUpdate {
 	pu.mutation.SetProjectType(pt)
@@ -442,6 +456,11 @@ func (pu *PortfolioUpdate) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Portfolio.title": %w`, err)}
 		}
 	}
+	if v, ok := pu.mutation.Tier(); ok {
+		if err := portfolio.TierValidator(v); err != nil {
+			return &ValidationError{Name: "tier", err: fmt.Errorf(`ent: validator failed for field "Portfolio.tier": %w`, err)}
+		}
+	}
 	if v, ok := pu.mutation.ProjectType(); ok {
 		if err := portfolio.ProjectTypeValidator(v); err != nil {
 			return &ValidationError{Name: "project_type", err: fmt.Errorf(`ent: validator failed for field "Portfolio.project_type": %w`, err)}
@@ -521,6 +540,9 @@ func (pu *PortfolioUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if pu.mutation.CoverURLCleared() {
 		_spec.ClearField(portfolio.FieldCoverURL, field.TypeString)
+	}
+	if value, ok := pu.mutation.Tier(); ok {
+		_spec.SetField(portfolio.FieldTier, field.TypeEnum, value)
 	}
 	if value, ok := pu.mutation.ProjectType(); ok {
 		_spec.SetField(portfolio.FieldProjectType, field.TypeEnum, value)
@@ -740,6 +762,20 @@ func (puo *PortfolioUpdateOne) SetNillableCoverURL(s *string) *PortfolioUpdateOn
 // ClearCoverURL clears the value of the "cover_url" field.
 func (puo *PortfolioUpdateOne) ClearCoverURL() *PortfolioUpdateOne {
 	puo.mutation.ClearCoverURL()
+	return puo
+}
+
+// SetTier sets the "tier" field.
+func (puo *PortfolioUpdateOne) SetTier(po portfolio.Tier) *PortfolioUpdateOne {
+	puo.mutation.SetTier(po)
+	return puo
+}
+
+// SetNillableTier sets the "tier" field if the given value is not nil.
+func (puo *PortfolioUpdateOne) SetNillableTier(po *portfolio.Tier) *PortfolioUpdateOne {
+	if po != nil {
+		puo.SetTier(*po)
+	}
 	return puo
 }
 
@@ -1087,6 +1123,11 @@ func (puo *PortfolioUpdateOne) check() error {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Portfolio.title": %w`, err)}
 		}
 	}
+	if v, ok := puo.mutation.Tier(); ok {
+		if err := portfolio.TierValidator(v); err != nil {
+			return &ValidationError{Name: "tier", err: fmt.Errorf(`ent: validator failed for field "Portfolio.tier": %w`, err)}
+		}
+	}
 	if v, ok := puo.mutation.ProjectType(); ok {
 		if err := portfolio.ProjectTypeValidator(v); err != nil {
 			return &ValidationError{Name: "project_type", err: fmt.Errorf(`ent: validator failed for field "Portfolio.project_type": %w`, err)}
@@ -1183,6 +1224,9 @@ func (puo *PortfolioUpdateOne) sqlSave(ctx context.Context) (_node *Portfolio, e
 	}
 	if puo.mutation.CoverURLCleared() {
 		_spec.ClearField(portfolio.FieldCoverURL, field.TypeString)
+	}
+	if value, ok := puo.mutation.Tier(); ok {
+		_spec.SetField(portfolio.FieldTier, field.TypeEnum, value)
 	}
 	if value, ok := puo.mutation.ProjectType(); ok {
 		_spec.SetField(portfolio.FieldProjectType, field.TypeEnum, value)

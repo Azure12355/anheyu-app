@@ -558,6 +558,7 @@ var (
 		{Name: "title", Type: field.TypeString, Size: 200, Comment: "项目标题"},
 		{Name: "description", Type: field.TypeString, Nullable: true, Size: 2147483647, Comment: "项目简介"},
 		{Name: "cover_url", Type: field.TypeString, Nullable: true, Comment: "封面图URL"},
+		{Name: "tier", Type: field.TypeEnum, Comment: "项目层级: normal-普通, recommended-推荐, featured-精选", Enums: []string{"normal", "recommended", "featured"}, Default: "normal"},
 		{Name: "project_type", Type: field.TypeEnum, Comment: "项目类型", Enums: []string{"frontend", "vibecoding", "fullstack", "miniprogram", "app", "uiux", "backend", "devops", "game", "3d-model", "illustration", "other"}, Default: "other"},
 		{Name: "status", Type: field.TypeEnum, Comment: "项目状态", Enums: []string{"developing", "completed", "archived"}, Default: "developing"},
 		{Name: "demo_url", Type: field.TypeString, Nullable: true, Size: 500, Comment: "演示地址"},
@@ -582,17 +583,22 @@ var (
 			{
 				Name:    "portfolio_project_type_status",
 				Unique:  false,
-				Columns: []*schema.Column{PortfoliosColumns[7], PortfoliosColumns[8]},
+				Columns: []*schema.Column{PortfoliosColumns[8], PortfoliosColumns[9]},
 			},
 			{
 				Name:    "portfolio_featured_status",
 				Unique:  false,
-				Columns: []*schema.Column{PortfoliosColumns[11], PortfoliosColumns[8]},
+				Columns: []*schema.Column{PortfoliosColumns[12], PortfoliosColumns[9]},
+			},
+			{
+				Name:    "portfolio_tier_status",
+				Unique:  false,
+				Columns: []*schema.Column{PortfoliosColumns[7], PortfoliosColumns[9]},
 			},
 			{
 				Name:    "portfolio_sort_order",
 				Unique:  false,
-				Columns: []*schema.Column{PortfoliosColumns[12]},
+				Columns: []*schema.Column{PortfoliosColumns[13]},
 			},
 		},
 	}

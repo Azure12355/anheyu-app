@@ -480,6 +480,26 @@ func CoverURLContainsFold(v string) predicate.Portfolio {
 	return predicate.Portfolio(sql.FieldContainsFold(FieldCoverURL, v))
 }
 
+// TierEQ applies the EQ predicate on the "tier" field.
+func TierEQ(v Tier) predicate.Portfolio {
+	return predicate.Portfolio(sql.FieldEQ(FieldTier, v))
+}
+
+// TierNEQ applies the NEQ predicate on the "tier" field.
+func TierNEQ(v Tier) predicate.Portfolio {
+	return predicate.Portfolio(sql.FieldNEQ(FieldTier, v))
+}
+
+// TierIn applies the In predicate on the "tier" field.
+func TierIn(vs ...Tier) predicate.Portfolio {
+	return predicate.Portfolio(sql.FieldIn(FieldTier, vs...))
+}
+
+// TierNotIn applies the NotIn predicate on the "tier" field.
+func TierNotIn(vs ...Tier) predicate.Portfolio {
+	return predicate.Portfolio(sql.FieldNotIn(FieldTier, vs...))
+}
+
 // ProjectTypeEQ applies the EQ predicate on the "project_type" field.
 func ProjectTypeEQ(v ProjectType) predicate.Portfolio {
 	return predicate.Portfolio(sql.FieldEQ(FieldProjectType, v))
