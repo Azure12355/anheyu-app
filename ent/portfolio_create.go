@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
 	"github.com/anzhiyu-c/anheyu-app/ent/portfoliotechnology"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // PortfolioCreate is the builder for creating a Portfolio entity.
@@ -282,8 +283,8 @@ func (pc *PortfolioCreate) SetNillableSolution(s *string) *PortfolioCreate {
 }
 
 // SetGalleryImages sets the "gallery_images" field.
-func (pc *PortfolioCreate) SetGalleryImages(s []string) *PortfolioCreate {
-	pc.mutation.SetGalleryImages(s)
+func (pc *PortfolioCreate) SetGalleryImages(mi []model.GalleryImage) *PortfolioCreate {
+	pc.mutation.SetGalleryImages(mi)
 	return pc
 }
 
@@ -923,7 +924,7 @@ func (u *PortfolioUpsert) ClearSolution() *PortfolioUpsert {
 }
 
 // SetGalleryImages sets the "gallery_images" field.
-func (u *PortfolioUpsert) SetGalleryImages(v []string) *PortfolioUpsert {
+func (u *PortfolioUpsert) SetGalleryImages(v []model.GalleryImage) *PortfolioUpsert {
 	u.Set(portfolio.FieldGalleryImages, v)
 	return u
 }
@@ -1328,7 +1329,7 @@ func (u *PortfolioUpsertOne) ClearSolution() *PortfolioUpsertOne {
 }
 
 // SetGalleryImages sets the "gallery_images" field.
-func (u *PortfolioUpsertOne) SetGalleryImages(v []string) *PortfolioUpsertOne {
+func (u *PortfolioUpsertOne) SetGalleryImages(v []model.GalleryImage) *PortfolioUpsertOne {
 	return u.Update(func(s *PortfolioUpsert) {
 		s.SetGalleryImages(v)
 	})
@@ -1902,7 +1903,7 @@ func (u *PortfolioUpsertBulk) ClearSolution() *PortfolioUpsertBulk {
 }
 
 // SetGalleryImages sets the "gallery_images" field.
-func (u *PortfolioUpsertBulk) SetGalleryImages(v []string) *PortfolioUpsertBulk {
+func (u *PortfolioUpsertBulk) SetGalleryImages(v []model.GalleryImage) *PortfolioUpsertBulk {
 	return u.Update(func(s *PortfolioUpsert) {
 		s.SetGalleryImages(v)
 	})

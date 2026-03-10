@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // 项目作品集表
@@ -57,7 +58,7 @@ type Portfolio struct {
 	// 解决方案
 	Solution string `json:"solution,omitempty"`
 	// 图库图片URL列表
-	GalleryImages []string `json:"gallery_images,omitempty"`
+	GalleryImages []model.GalleryImage `json:"gallery_images,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PortfolioQuery when eager-loading is set.
 	Edges        PortfolioEdges `json:"edges"`

@@ -15,6 +15,7 @@ import (
 	"github.com/anzhiyu-c/anheyu-app/ent/portfolio"
 	"github.com/anzhiyu-c/anheyu-app/ent/portfoliotechnology"
 	"github.com/anzhiyu-c/anheyu-app/ent/predicate"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 )
 
 // PortfolioUpdate is the builder for updating Portfolio entities.
@@ -349,14 +350,14 @@ func (pu *PortfolioUpdate) ClearSolution() *PortfolioUpdate {
 }
 
 // SetGalleryImages sets the "gallery_images" field.
-func (pu *PortfolioUpdate) SetGalleryImages(s []string) *PortfolioUpdate {
-	pu.mutation.SetGalleryImages(s)
+func (pu *PortfolioUpdate) SetGalleryImages(mi []model.GalleryImage) *PortfolioUpdate {
+	pu.mutation.SetGalleryImages(mi)
 	return pu
 }
 
-// AppendGalleryImages appends s to the "gallery_images" field.
-func (pu *PortfolioUpdate) AppendGalleryImages(s []string) *PortfolioUpdate {
-	pu.mutation.AppendGalleryImages(s)
+// AppendGalleryImages appends mi to the "gallery_images" field.
+func (pu *PortfolioUpdate) AppendGalleryImages(mi []model.GalleryImage) *PortfolioUpdate {
+	pu.mutation.AppendGalleryImages(mi)
 	return pu
 }
 
@@ -1003,14 +1004,14 @@ func (puo *PortfolioUpdateOne) ClearSolution() *PortfolioUpdateOne {
 }
 
 // SetGalleryImages sets the "gallery_images" field.
-func (puo *PortfolioUpdateOne) SetGalleryImages(s []string) *PortfolioUpdateOne {
-	puo.mutation.SetGalleryImages(s)
+func (puo *PortfolioUpdateOne) SetGalleryImages(mi []model.GalleryImage) *PortfolioUpdateOne {
+	puo.mutation.SetGalleryImages(mi)
 	return puo
 }
 
-// AppendGalleryImages appends s to the "gallery_images" field.
-func (puo *PortfolioUpdateOne) AppendGalleryImages(s []string) *PortfolioUpdateOne {
-	puo.mutation.AppendGalleryImages(s)
+// AppendGalleryImages appends mi to the "gallery_images" field.
+func (puo *PortfolioUpdateOne) AppendGalleryImages(mi []model.GalleryImage) *PortfolioUpdateOne {
+	puo.mutation.AppendGalleryImages(mi)
 	return puo
 }
 

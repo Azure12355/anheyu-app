@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/anzhiyu-c/anheyu-app/ent/schema/mixin"
+	"github.com/anzhiyu-c/anheyu-app/pkg/domain/model"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
@@ -137,7 +138,7 @@ func (Portfolio) Fields() []ent.Field {
 			Optional(),
 
 		// --- 图库图片 ---
-		field.JSON("gallery_images", []string{}).
+		field.JSON("gallery_images", []model.GalleryImage{}).
 			Comment("图库图片URL列表").
 			Optional(),
 	}

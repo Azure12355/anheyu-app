@@ -20204,8 +20204,8 @@ type PortfolioMutation struct {
 	client               *string
 	challenge            *string
 	solution             *string
-	gallery_images       *[]string
-	appendgallery_images []string
+	gallery_images       *[]model.GalleryImage
+	appendgallery_images []model.GalleryImage
 	clearedFields        map[string]struct{}
 	technologies         map[uint]struct{}
 	removedtechnologies  map[uint]struct{}
@@ -21167,13 +21167,13 @@ func (m *PortfolioMutation) ResetSolution() {
 }
 
 // SetGalleryImages sets the "gallery_images" field.
-func (m *PortfolioMutation) SetGalleryImages(s []string) {
-	m.gallery_images = &s
+func (m *PortfolioMutation) SetGalleryImages(mi []model.GalleryImage) {
+	m.gallery_images = &mi
 	m.appendgallery_images = nil
 }
 
 // GalleryImages returns the value of the "gallery_images" field in the mutation.
-func (m *PortfolioMutation) GalleryImages() (r []string, exists bool) {
+func (m *PortfolioMutation) GalleryImages() (r []model.GalleryImage, exists bool) {
 	v := m.gallery_images
 	if v == nil {
 		return
@@ -21184,7 +21184,7 @@ func (m *PortfolioMutation) GalleryImages() (r []string, exists bool) {
 // OldGalleryImages returns the old "gallery_images" field's value of the Portfolio entity.
 // If the Portfolio object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PortfolioMutation) OldGalleryImages(ctx context.Context) (v []string, err error) {
+func (m *PortfolioMutation) OldGalleryImages(ctx context.Context) (v []model.GalleryImage, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldGalleryImages is only allowed on UpdateOne operations")
 	}
@@ -21198,13 +21198,13 @@ func (m *PortfolioMutation) OldGalleryImages(ctx context.Context) (v []string, e
 	return oldValue.GalleryImages, nil
 }
 
-// AppendGalleryImages adds s to the "gallery_images" field.
-func (m *PortfolioMutation) AppendGalleryImages(s []string) {
-	m.appendgallery_images = append(m.appendgallery_images, s...)
+// AppendGalleryImages adds mi to the "gallery_images" field.
+func (m *PortfolioMutation) AppendGalleryImages(mi []model.GalleryImage) {
+	m.appendgallery_images = append(m.appendgallery_images, mi...)
 }
 
 // AppendedGalleryImages returns the list of values that were appended to the "gallery_images" field in this mutation.
-func (m *PortfolioMutation) AppendedGalleryImages() ([]string, bool) {
+func (m *PortfolioMutation) AppendedGalleryImages() ([]model.GalleryImage, bool) {
 	if len(m.appendgallery_images) == 0 {
 		return nil, false
 	}
@@ -21620,7 +21620,7 @@ func (m *PortfolioMutation) SetField(name string, value ent.Value) error {
 		m.SetSolution(v)
 		return nil
 	case portfolio.FieldGalleryImages:
-		v, ok := value.([]string)
+		v, ok := value.([]model.GalleryImage)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
